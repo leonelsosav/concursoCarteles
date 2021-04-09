@@ -7,14 +7,22 @@
   font-family: 'Lato', sans-serif;
 }
 
+body {
+  background-color: #ECF1F5;
+}
+
 .workSpace {
-  margin-left:250px;
-  padding: 20px;
+  margin-top: 20px;
+  margin-left: 270px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  height: 100%;
+  background-color: #fff;
 }
 
 @media screen and (max-width: 1000px){
   .workSpace {
-    margin-left:0;
+    margin-left:20px;
     padding: 5px;
   }
 }

@@ -1,8 +1,8 @@
 .header {
-    background-color: #EEEEEE;
+    background-color: #30323E;
     width: 100%;
     height: 50px;
-    display:none;
+    display:flex;
     align-items: center;
     justify-content: flex-start;
 }
@@ -10,17 +10,21 @@
 .menu-bars{
     margin-left: 2rem;
     font-size: 2rem;
-    display: block;
+    display: none;
+}
+
+.logo{
+    max-height: 45px;
 }
 
 .menu {
-    background-color: #060b26;
+    background-color: #fff;
     width: 250px;
     height: 100vh;
     display: flex;
     justify-content: center;
     position: fixed;
-    top: 0px;
+    top: 50px;
     left: -100%;
     transition: 250ms;
 }
@@ -41,7 +45,7 @@
 
 .sidebar-text a {
     text-decoration: none;
-    color: #f5f5f5;
+    color: #060b26;
     font-size: 18px;
     width: 200px;
     height: 100%;
@@ -60,11 +64,7 @@ span {
 }
 
 @media screen and (max-width: 1000px) {
-    .header{
-        display: flex;
-    }
-
-    .menu{
-        top: 50px;
+    .menu-bars{
+        display: block;
     }
 }
