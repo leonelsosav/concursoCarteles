@@ -1,0 +1,10 @@
+.subtituloTipoCarteles{
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    line-height: 200%;
+}
+
+.linkEjemplo{
+    color: #ff5900;
+}

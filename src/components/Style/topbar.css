@@ -1,0 +1,19 @@
+.topBar{
+    height: 100%;
+    width: 100%;
+    background-color: #FF5900;
+    margin-left: 250px;
+}
+
+.tituloTopBar{
+    color: #fff;
+    font-size: 1rem;
+    margin-left: 10px;
+    padding: 10px;
+}
+
+@media screen and (max-width: 1000px){
+    .topBar {
+      margin-left:0px;
+    }
+  }

@@ -18,6 +18,8 @@ body {
   margin-bottom: 20px;
   height: 100%;
   background-color: #fff;
+  padding: 10px;
+  line-height: 200%;
 }
 
 @media screen and (max-width: 1000px){

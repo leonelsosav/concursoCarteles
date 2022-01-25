@@ -56,7 +56,8 @@
 }
 
 .sidebar-text a:hover {
-    background-color: #1a83ff;
+    background-color: #FF5900;
+    color: #fff;
 }
 
 span {

@@ -1,0 +1,33 @@
+#jueces, #listaCarteles{
+    padding:10px;
+    font-size:18px;
+    display: block;
+    margin: auto;
+}
+
+#jueces{
+    width:50%;
+    text-align: center;
+}
+
+.indicacionesNuevaEvaluacion{
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.botonSiguiente{
+    background-color: #ff5900;
+    color:white;
+    border-color: #EDF1F5;
+    padding: 10px;
+    font-size: 20px;
+    display: block;
+    margin: auto;
+}
+
+@media screen and (max-width:1000px) {
+    #jueces{
+        width:90%;
+    }
+}
