@@ -9,7 +9,7 @@ const AcercaDe = () => {
             <Sidebar></Sidebar>
             <TopBar titulo="Acerca de"></TopBar>
             <div className="workSpace">
-                <p class="subtituloAcercaDe">Acerca de este sistema</p>
+                <p className="subtituloAcercaDe">Acerca de este sistema</p>
                 <p>El sistema de evaluación de carteles de investigación es empleado anualmente en el marco del
                     Concurso de Carteles de Investigación de nuestra Universidad cuya organización depende de la
                     Coordinación de

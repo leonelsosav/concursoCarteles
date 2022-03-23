@@ -23,7 +23,7 @@
     height: 100vh;
     display: flex;
     justify-content: center;
-    position: fixed;
+    position:absolute;
     top: 50px;
     left: -100%;
     transition: 250ms;
@@ -32,6 +32,7 @@
 .menu.active {
     left: 0;
     transition: 250ms;
+    z-index: 1;
 }
 
 .sidebar-text {

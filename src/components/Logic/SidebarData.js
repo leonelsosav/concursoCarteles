@@ -1,5 +1,5 @@
 import React from 'react'
-import { FaPencilAlt, FaBookOpen, FaQuestionCircle, FaUserCog, FaChartBar, FaSignOutAlt, FaBuromobelexperte, FaInfoCircle } from "react-icons/fa";
+import { FaHdd, FaPencilAlt, FaBookOpen, FaQuestionCircle, FaUserCog, FaChartBar, FaSignOutAlt, FaBuromobelexperte, FaInfoCircle } from "react-icons/fa";
 
 export const SidebarData = [
     {
@@ -42,6 +42,12 @@ export const SidebarData = [
         titulo: "Acerca de",
         ruta: "/AcercaDe",
         icono: <FaInfoCircle/>,
+        clase: "sidebar-text" 
+    },
+    {
+        titulo: "Dashboard",
+        ruta: "/Dashboard",
+        icono: <FaHdd/>,
         clase: "sidebar-text" 
     },
     {

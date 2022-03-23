@@ -1,9 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/UI/Sidebar'
 import TopBar from '../components/UI/TopBar'
 import DataTable from 'react-data-table-component';
+import DAO from '../components/Logic/DAO'
 
 const Evaluaciones = () => {
+    const { getWhere, getAll } = DAO();
+    const [evaluaciones, setEvaluaciones] = useState([]);
+
+    useEffect(() => {
+        let retrieve = async () => {
+            let data = await getWhere("evaluacion", "evaluado", "==", true);
+            let newArray = [];
+            data.forEach((evaluacion,i) => {
+                newArray.push({
+                    id: i,
+                    clave: evaluacion.clave,
+                    titulo: "cartel.titulo",
+                    autor: "cartel.autor",
+                    juez: "juez.nombre" + " " + 2,
+                    puntos: "60",
+                    ptsForma: evaluacion.totalPuntosF,
+                    ptsContenido: evaluacion.totalPuntosC,
+                    ptsPertinencia: evaluacion.totalPuntosP,
+                    calidadSupervision: "Suficiente",
+                    link: "cartel.link",
+                })
+            })
+            // for await (let evaluacion of data) {
+            //     let cartel = await getWhere("cartel", "clave", "==", evaluacion.clave);
+            //     if (!cartel.error) {
+            //         let juez = await getWhere("juez", "id", "==", cartel.juez);
+            //         i = i + 1;
+            //         newArray.push({
+            //             id: i,
+            //             clave: evaluacion.clave,
+            //             titulo: cartel.titulo,
+            //             autor: cartel.autor,
+            //             juez: juez.nombre + " " + juez.apellidos,
+            //             puntos: "60",
+            //             ptsForma: evaluacion.totalPuntosF,
+            //             ptsContenido: evaluacion.totalPuntosC,
+            //             ptsPertinencia: evaluacion.totalPuntosP,
+            //             calidadSupervision: "Suficiente",
+            //             link: cartel.link,
+            //         })
+            //     }
+            // }
+            // console.log()
+            setEvaluaciones(newArray);
+        }
+        retrieve();
+    }, []);
 
     const columns = [
         {
@@ -48,35 +96,6 @@ const Evaluaciones = () => {
         },
     ];
 
-    const data = [
-        {
-            id: 1,
-            clave: '1',
-            titulo: '2',
-            autor: '3',
-            juez: '4',
-            puntos: '5',
-            ptsForma: '6',
-            ptsContenido: '7',
-            ptsPertinencia: '8',
-            calidadSupervision: '9',
-            link: '10'
-        },
-        {
-            id: 2,
-            clave: '11',
-            titulo: '12',
-            autor: '13',
-            juez: '14',
-            puntos: '15',
-            ptsForma: '16',
-            ptsContenido: '17',
-            ptsPertinencia: '18',
-            calidadSupervision: '19',
-            link: '20'
-        }
-    ]
-
     return (
         <>
             <Sidebar></Sidebar>
@@ -84,7 +103,7 @@ const Evaluaciones = () => {
             <div className="workSpace">
                 <DataTable
                     columns={columns}
-                    data={data}
+                    data={evaluaciones}
                 />
             </div>
         </>
