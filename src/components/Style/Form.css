@@ -1,0 +1,37 @@
+form {
+    border: 1px solid #FF5900;
+    margin: 20px;
+}
+
+label {
+    padding: 5px;
+    display: inline-block;
+    font-size: 1.2em;
+    width: 200px;
+}
+
+.select, input[type="text"], input[type="number"], input[type="date"], input[type="password"], input[type="time"] {
+    font-size: 1.2em;
+    margin: 5px;
+}
+
+.btnGuardar {
+    font-size: 1.2em;
+    margin: 5px;
+    padding: 5px;
+    background-color: #FFF;
+    color: #FF5900;
+    border: 1px solid #FF5900;
+}
+
+.btnGuardar:hover {
+    background-color: #FF5900;
+    color: #FFF;
+    border: 1px solid #FFF;
+}
+
+@media screen and (max-width: 1000px) {
+    form {
+        text-align: center;
+    }
+}

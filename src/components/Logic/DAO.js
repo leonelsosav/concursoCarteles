@@ -5,6 +5,7 @@ const DAO = () => {
     const createItem = async (collection, data, document = "0") => {
         return await new Promise(async (resolve, reject) => {
             try {
+                console.log(document);
                 if (document === "0") await addDocf(collectionf(db, collection), data)
                 else await setDocf(docf(db, collection, document),data);
                 resolve(data);
