@@ -8,6 +8,7 @@ const Form = ({ estructura, txtBtn, guardarNuevoFn, inputs, setInputs }) => {
 
     const onSubmit = (e) => {
         e.preventDefault();
+        console.log(inputs);
         estructura.forEach((val, idx) => {
             if(val.tipo === "read") inputs[idx] = 0;
         });
@@ -19,6 +20,7 @@ const Form = ({ estructura, txtBtn, guardarNuevoFn, inputs, setInputs }) => {
                 result = { ...result, [estr.nombre]: inputs[index] }
             });
             setInputs(Array(estructura.length).fill(""));
+            //console.log(inputs, result, estructura);
             guardarNuevoFn(result);
         }
     }
@@ -41,7 +43,7 @@ const Form = ({ estructura, txtBtn, guardarNuevoFn, inputs, setInputs }) => {
                             est.tipo === "read" ? <h3 style={{ display: "inline-block" }}>{0}</h3>
                                 :
                                 <input type={est.tipo} placeholder={est.nombre} value={inputs[index]}
-                                    onChange={(e) => setInputs(inputs.map((value, idx) => idx === index ? e.target.value : value))} />}
+                                    onChange={(e) => setInputs(inputs.map((value, idx) => {return idx === index ? e.target.value : value}))} />}
                     </div>
                 );
             })}

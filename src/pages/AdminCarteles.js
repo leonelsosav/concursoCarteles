@@ -24,8 +24,8 @@ const AdminCarteles = () => {
         { nombre: "Tipo", tipo: "text" },
         { nombre: "Link", tipo: "text" }
     ]);
-    const [inputs, setInputs] = useState(Array(estructura.length).fill(""));
-    const [inputsEdit, setInputsEdit] = useState(Array(estructura.length).fill(""));
+    const [inputs, setInputs] = useState(Array(estructura.current.length).fill(""));
+    const [inputsEdit, setInputsEdit] = useState(Array(estructura.current.length).fill(""));
 
     useEffect(() => {
         let retrieve = async () => {
@@ -191,10 +191,10 @@ const AdminCarteles = () => {
             <Sidebar></Sidebar>
             <TopBar titulo="Administración de carteles"></TopBar>
             <div className="workSpace">
-                {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir registro"}</button>}
-                {showForm && <Form txtBtn="Guardar Empleado" estructura={estructura.current} guardarNuevoFn={createCartel} inputs={inputs} setInputs={setInputs}></Form>}
+                {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir cartel"}</button>}
+                {showForm && <Form txtBtn="Guardar Cartel" estructura={estructura.current} guardarNuevoFn={createCartel} inputs={inputs} setInputs={setInputs}></Form>}
                 {showFormEdit && <button className="btnAdd" onClick={() => setShowFormEdit(false)}>Cerrar</button>}
-                {showFormEdit && <FormEdit txtBtn="Editar Empleado" estructura={estructura.current} editarCartelFn={editCartel} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}
+                {showFormEdit && <FormEdit txtBtn="Editar Cartel" estructura={estructura.current} editarCartelFn={editCartel} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}
                 <DataTable
                     columns={columns}
                     data={carteles}

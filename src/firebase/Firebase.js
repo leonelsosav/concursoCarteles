@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app"
 import 'firebase/compat/auth'
-import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, doc, getDoc, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, doc, getDoc, deleteDoc, orderBy, limit } from "firebase/firestore";
 
 const firebaseApp = initializeApp({
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -20,6 +20,8 @@ export const setDocf = setDoc;
 export const docf = doc;
 export const getDocf = getDoc;
 export const deleteDocf = deleteDoc;
+export const orderByf = orderBy;
+export const limitf = limit;
 export const db = getFirestore(firebaseApp);
 
 export default firebaseApp;
