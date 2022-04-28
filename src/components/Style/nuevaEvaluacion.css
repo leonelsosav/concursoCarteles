@@ -20,6 +20,26 @@
     margin-bottom: 10px;
 }
 
+.labelTitulo{
+    font-size: 20px;
+    margin-top: 10px;
+    color: #ff5900;
+    font-weight: bold;
+}
+
+.infoCartel{
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+.linkCartel{
+    color: #ff5900;
+    text-decoration: none;
+}
+
 .botonSiguiente{
     background-color: #ff5900;
     color:white;
@@ -28,6 +48,12 @@
     font-size: 20px;
     display: block;
     margin: auto;
+}
+
+.botonSiguiente:hover{
+    background-color: white;
+    color:#ff5900;
+    border-color: #ff5900;
 }
 
 .btnAdd{

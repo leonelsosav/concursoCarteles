@@ -1,4 +1,4 @@
-import { db, collectionf, queryf, wheref, getDocsf, addDocf, setDocf, docf, getDocf, deleteDocf, orderByf, limitf   } from '../../firebase/Firebase'
+import { db, collectionf, queryf, wheref, getDocsf, addDocf, setDocf, docf, getDocf, deleteDocf, orderByf, limitf, updateDocf   } from '../../firebase/Firebase'
 
 const DAO = () => {
 
@@ -30,7 +30,7 @@ const DAO = () => {
         return await new Promise(async (resolve, reject) => {
             try {
                 const docRef = docf(db, collection, document.toString());
-                setDocf(docRef, data);
+                updateDocf(docRef, data);
                 resolve(data);
             } catch (error) {
                 reject({ error: error });
@@ -54,7 +54,7 @@ const DAO = () => {
             try {
                 const res = await getDocf(docf(db, collection, document));
                 delete res.IdNumerico;
-                res.exists() ? resolve(res.data().items) : reject({ error: "Vacio" });
+                res.exists() ? resolve(res.data()) : resolve({ error: "Vacio" });
             } catch (error) {
                 reject({ error: error });
             }
@@ -100,11 +100,29 @@ const DAO = () => {
         });
     }
 
+    const getWhereWhere = async(collection, campo, comparacion, valor, campo2, comparacion2, valor2) => {
+        return await new Promise(async (resolve, reject) => {
+            try {
+                const q = queryf(collectionf(db, collection), wheref(campo, comparacion, valor), wheref(campo2, comparacion2, valor2));
+                const querySnapshot = await getDocsf(q);
+                if (!querySnapshot.empty) {
+                    let newArr = [];
+                    querySnapshot.forEach(doc => {
+                        newArr.push(doc.data());
+                    });
+                    resolve(newArr.length === 1 ? newArr[0]: newArr);
+                } else resolve({ error: "Vacio" });
+            } catch (error) {
+                reject({ error: error });
+            }
+        });
+    }
+
     const getOrderByLimit = async(collection, campo, orden, limitNumber) => {
         return await new Promise(async (resolve, reject) => {
             try {
                 const q = queryf(collectionf(db, collection), orderByf(campo, orden), limitf(limitNumber));
-                const querySnapshot = await getDocsf(q);
+                const querySnapshot = await getDocsf(q)
                 if (!querySnapshot.empty) {
                     let newArr = [];
                     querySnapshot.forEach(doc => {
@@ -119,7 +137,7 @@ const DAO = () => {
     }
 
     return {
-        createItem, readFirstTen, updateItem, deleteItem, getById, getAll, getWhere, getOrderByLimit
+        createItem, readFirstTen, updateItem, deleteItem, getById, getAll, getWhere, getOrderByLimit, getWhereWhere
     }
 }
 

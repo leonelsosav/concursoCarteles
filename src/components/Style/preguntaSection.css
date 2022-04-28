@@ -1,0 +1,39 @@
+.preguntaSection{
+    margin-left: 20px;
+}
+
+.titulo{
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #FF5900;
+    margin: 10px;
+}
+
+.pregunta{
+    font-size: 1em;
+    margin: 5px;
+}
+
+.respuesta{
+    margin: 10px;
+    padding: 10px;
+    background-color: #8898AA;
+    color: white;
+    border: 0;
+    font-weight: bold;
+    font-size: 1.1em;
+    width: 30%;
+    transition: all 0.25s linear;
+}
+
+.respuesta:hover{
+    background-color: #4A5C6B;
+}
+
+.seleccionado{
+    background-color: #FF5900;
+}
+
+.seleccionado:hover{
+    background-color: #FF5900;
+}

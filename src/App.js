@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import NuevaEvaluacion from './pages/NuevaEvaluacion'
 import AcercaDe from './pages/AcercaDe'
 import AdminCarteles from './pages/AdminCarteles'
@@ -7,22 +7,28 @@ import AdminPreguntas from './pages/AdminPreguntas'
 import Evaluaciones from './pages/Evaluaciones'
 import TiposCarteles from './pages/TiposCarteles'
 import Dashboard from './pages/Dashboard'
+import EvaluacionForma from './pages/EvaluacionForma';
+import EvaluacionContenido from './pages/EvaluacionContenido';
+import EvaluacionPertinencia from './pages/EvaluacionPertinencia'
 import './App.css';
  
 function App() {
   return (
     <>
       <Router>
-        <Switch>
-          <Route path="/" exact component={NuevaEvaluacion}></Route>
-          <Route path="/AcercaDe" component={AcercaDe}></Route>
-          <Route path="/AdminCarteles" component={AdminCarteles}></Route>
-          <Route path="/AdminJueces" component={AdminJueces}></Route>
-          <Route path="/AdminPreguntas" component={AdminPreguntas}></Route>
-          <Route path="/Evaluaciones" component={Evaluaciones}></Route>
-          <Route path="/TiposCarteles" component={TiposCarteles}></Route>
-          <Route path="/Dashboard" component={Dashboard}></Route>
-        </Switch>
+        <Routes>
+          <Route path="/" element={<NuevaEvaluacion/>}></Route>
+          <Route path="/AcercaDe" element={<AcercaDe/>}></Route>
+          <Route path="/AdminCarteles" element={<AdminCarteles/>}></Route>
+          <Route path="/AdminJueces" element={<AdminJueces/>}></Route>
+          <Route path="/AdminPreguntas" element={<AdminPreguntas/>}></Route>
+          <Route path="/Evaluaciones" element={<Evaluaciones/>}></Route>
+          <Route path="/TiposCarteles" element={<TiposCarteles/>}></Route>
+          <Route path="/Dashboard" element={<Dashboard/>}></Route>
+          <Route path="/EvaluacionForma/:clave/:tipo" element={<EvaluacionForma/>}></Route>
+          <Route path="/EvaluacionContenido/:clave/:tipo" element={<EvaluacionContenido/>}></Route>
+          <Route path="/EvaluacionPertinencia/:clave/:tipo" element={<EvaluacionPertinencia/>}></Route>
+        </Routes>
       </Router>
     </>
   );
