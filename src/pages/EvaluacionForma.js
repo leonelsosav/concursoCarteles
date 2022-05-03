@@ -30,7 +30,7 @@ const EvaluacionForma = (props) => {
                 let puntajesFromDatabase = res.puntajesForma;
                 puntajesFromDatabase = puntajesFromDatabase.map(v => Object.values(v)[0]);
                 setPuntajes(puntajesFromDatabase);
-                setTotalPuntaje(puntajesFromDatabase.reduce((a, b) => b<0 ? a : a + b, 0));
+                setTotalPuntaje(puntajesFromDatabase.reduce((a, b) => b < 0 ? a : a + b, 0));
             } else {
                 console.log("No existe en base de datos")
                 setPuntajes(Array(data.length).fill(-1));
@@ -40,15 +40,18 @@ const EvaluacionForma = (props) => {
     }, []);
 
     const goToContenido = () => {
-        alertify.confirm('Concurso de carteles', '¿Esta seguro que desea continuar?',
-            function () {
-                navigate("/EvaluacionContenido/" + claveCartel + "/" + tipoCartel);
-                alertify.success('Ok')
-            }
-            , function () {
-                alertify.error('Cancel')
-            });
-
+        if (puntajes.some(v => v < 0)) {
+            alertify.alert("Atención", "Debe responder todas las preguntas para poder continuar");
+        } else {
+            alertify.confirm('Concurso de carteles', '¿Esta seguro que desea continuar?',
+                function () {
+                    navigate("/EvaluacionContenido/" + claveCartel + "/" + tipoCartel);
+                    alertify.success('Ok')
+                }
+                , function () {
+                    alertify.error('Cancel')
+                });
+        }
     };
 
     const setPuntajeSeleccionado = async (idx, puntaje) => {
@@ -58,12 +61,12 @@ const EvaluacionForma = (props) => {
             puntajesCopy[idx] = puntaje;
             setPuntajes(puntajesCopy);
             console.log(puntajesCopy);
-            setTotalPuntaje(puntajesCopy.reduce((a, b) => b<0 ? a : a + b, 0));
+            setTotalPuntaje(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0));
             let res = await getById("evaluacion", claveCartel);
             if (!res.error) {
                 let dataToUpdate = {
                     puntajesForma: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: puntajesCopy.reduce((a, b) => b<0 ? a : a + b, 0)
+                    totalPuntajeForma: puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)
                 }
                 await updateItem("evaluacion", claveCartel, dataToUpdate);
             } else {
@@ -71,7 +74,7 @@ const EvaluacionForma = (props) => {
                     clave: claveCartel,
                     evaluado: false,
                     puntajesForma: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: puntajesCopy.reduce((a, b) => b<0 ? a : a + b, 0)
+                    totalPuntajeForma: puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)
                 }
                 await createItem("evaluacion", dataToSave, claveCartel);
             }
@@ -89,7 +92,7 @@ const EvaluacionForma = (props) => {
                 {preguntas.map((pregunta, idx) => {
                     return (
                         <PreguntaSection key={idx} titulo={pregunta.titulo} pregunta={pregunta.rubrica} respuestas={respuestas}
-                            idxPregunta={idx} setPuntajeSeleccionado={setPuntajeSeleccionado} puntajes={puntajes}/>
+                            idxPregunta={idx} setPuntajeSeleccionado={setPuntajeSeleccionado} puntajes={puntajes} />
                     )
                 }
                 )}

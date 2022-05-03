@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import EvaluacionForma from './pages/EvaluacionForma';
 import EvaluacionContenido from './pages/EvaluacionContenido';
 import EvaluacionPertinencia from './pages/EvaluacionPertinencia'
+import ResumenEvaluacion from './pages/ResumenEvaluacion'
 import './App.css';
  
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/EvaluacionForma/:clave/:tipo" element={<EvaluacionForma/>}></Route>
           <Route path="/EvaluacionContenido/:clave/:tipo" element={<EvaluacionContenido/>}></Route>
           <Route path="/EvaluacionPertinencia/:clave/:tipo" element={<EvaluacionPertinencia/>}></Route>
+          <Route path="/ResumenEvaluacion/:clave/:tipo" element={<ResumenEvaluacion/>}></Route>
         </Routes>
       </Router>
     </>

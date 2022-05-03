@@ -44,18 +44,25 @@ const EvaluacionPertinencia = (props) => {
     }, []);
 
     const goToContenido = () => {
-        alertify.confirm('Concurso de carteles', '¿Esta seguro que desea continuar?',
-            function () {
-                navigate("/EvaluacionPertinencia/" + claveCartel + "/" + tipoCartel);
-                alertify.success('Ok')
-            }
-            , function () {
-                alertify.error('Cancel')
-            });
-
+        if (puntajes.some(v => v < 0)) {
+            alertify.alert("Atención", "Debe responder todas las preguntas para poder continuar");
+        } else {
+            alertify.confirm('Concurso de carteles', '¿Esta seguro que desea continuar?',
+                async function () {
+                    let dataToUpdate = {
+                        evaluado: true
+                    }
+                    await updateItem("evaluacion", claveCartel, dataToUpdate);
+                    navigate("/ResumenEvaluacion/" + claveCartel + "/" + tipoCartel);
+                    alertify.success('Ok')
+                }
+                , function () {
+                    alertify.error('Cancel')
+                });
+        }
     };
 
-    const setPuntajeSeleccionado = async(idx, puntaje) => {
+    const setPuntajeSeleccionado = async (idx, puntaje) => {
         try {
             let puntajesCopy = puntajes.slice();
             puntajesCopy[idx] = puntaje;
