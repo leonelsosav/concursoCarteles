@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom';
 import DAO from '../components/Logic/DAO';
 import Sidebar from '../components/UI/Sidebar';
@@ -14,23 +14,48 @@ const EvaluacionForma = (props) => {
     const [claveCartel, setClaveCartel] = useState(useParams().clave);
     const [tipoCartel, setTipoCartel] = useState(useParams().tipo);
     const [preguntas, setPreguntas] = useState([]);
+    const [preguntasIngles, setPreguntasIngles] = useState([]);
     const [respuestas, setRespuestas] = useState([]);
+    const [respuestasIngles, setRespuestasIngles] = useState([]);
     const [puntajes, setPuntajes] = useState([]);
+    const [puntajesIngles, setPuntajesIngles] = useState([-1, -1]);
     const [totalPuntaje, setTotalPuntaje] = useState(0);
+    const isEnglishCandidate = useRef(false);
+    //const [isEnglishCandidate, setIsEnglishCandidate] = useState(false);
+    const [puntosInglesMin, setPuntosInglesMin] = useState(100);
     const { getWhereWhere, getById, createItem, updateItem } = DAO();
 
     useEffect(() => {
         let retrieve = async () => {
             let data = await getById("respuestas", "respuestas");
+            let puntosMinIngles = data.puntosInglesMin[tipoCartel];
+            setPuntosInglesMin(puntosMinIngles);
             setRespuestas(data.respuestasPosibles.forma);
+            setRespuestasIngles(data.respuestasPosibles.ingles);
             data = await getWhereWhere("pregunta", "criterio", "==", "Forma", "tipo", "==", tipoCartel);
+            let inglesIdx = data.findIndex(pregunta => pregunta.titulo === "CARTEL EN INGLÉS");
+            let arrIngles = [];
+            arrIngles.push(data[inglesIdx]);
+            data.splice(inglesIdx, 1);
+            inglesIdx = data.findIndex(pregunta => pregunta.titulo === "GRAMATICA");
+            arrIngles.push(data[inglesIdx]);
+            setPreguntasIngles(arrIngles);
+            data.splice(inglesIdx, 1);
             setPreguntas(data);
             let res = await getById("evaluacion", claveCartel);
             if (!res.error) {
                 let puntajesFromDatabase = res.puntajesForma;
                 puntajesFromDatabase = puntajesFromDatabase.map(v => Object.values(v)[0]);
                 setPuntajes(puntajesFromDatabase);
-                setTotalPuntaje(puntajesFromDatabase.reduce((a, b) => b < 0 ? a : a + b, 0));
+
+                if (res.puntajesIngles) {
+                    let puntajesInglesFromDatabase = res.puntajesIngles;
+                    puntajesInglesFromDatabase = puntajesInglesFromDatabase.map(v => Object.values(v)[0]);
+                    setPuntajesIngles(puntajesInglesFromDatabase);
+                }
+                console.log(res.puntajesIngles)
+                setTotalPuntaje(Number(puntajesFromDatabase.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                    ((res.puntajesIngles && isEnglishCandidate.current) ? (res.puntajesIngles.map(v => Object.values(v)[0]).every(v => v === 1) ? 5 : 0) : 0));
             } else {
                 console.log("No existe en base de datos")
                 setPuntajes(Array(data.length).fill(-1));
@@ -39,10 +64,15 @@ const EvaluacionForma = (props) => {
         retrieve();
     }, []);
 
+    useEffect(() => {
+        puntosInglesMin <= puntajes.reduce((a, b) => b < 0 ? a : a + b, 0) ? (isEnglishCandidate.current = true) : (isEnglishCandidate.current = false);
+    },[puntajes]);
+
     const goToContenido = () => {
-        if (puntajes.some(v => v < 0)) {
+        if (puntajes.some(v => v < 0) || (isEnglishCandidate.current && puntajesIngles.some(v => v < 0))) {
             alertify.alert("Atención", "Debe responder todas las preguntas para poder continuar");
         } else {
+            console.log(puntajesIngles);
             alertify.confirm('Concurso de carteles', '¿Esta seguro que desea continuar?',
                 function () {
                     navigate("/EvaluacionContenido/" + claveCartel + "/" + tipoCartel);
@@ -60,13 +90,14 @@ const EvaluacionForma = (props) => {
             console.log(puntajes);
             puntajesCopy[idx] = puntaje;
             setPuntajes(puntajesCopy);
-            console.log(puntajesCopy);
-            setTotalPuntaje(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0));
             let res = await getById("evaluacion", claveCartel);
+            setTotalPuntaje(Number(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                (isEnglishCandidate.current ? (Number(puntajesIngles.every(v => v === 1) ? 5 : 0)) : 0));
             if (!res.error) {
                 let dataToUpdate = {
                     puntajesForma: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)
+                    totalPuntajeForma: Number(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                        (isEnglishCandidate.current ? (Number(puntajesIngles.every(v => v === 1) ? 5 : 0)) : 0)
                 }
                 await updateItem("evaluacion", claveCartel, dataToUpdate);
             } else {
@@ -74,14 +105,45 @@ const EvaluacionForma = (props) => {
                     clave: claveCartel,
                     evaluado: false,
                     puntajesForma: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)
+                    totalPuntajeForma: Number(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                        (isEnglishCandidate.current ? (Number(puntajesIngles.every(v => v === 1) ? 5 : 0)) : 0)
                 }
                 await createItem("evaluacion", dataToSave, claveCartel);
             }
         } catch (error) {
             console.log(error);
         }
+    }
 
+    const setPuntajeSeleccionadoIngles = async (idx, puntaje) => {
+        try {
+            let puntajesCopy = puntajesIngles.slice();
+            puntajesCopy[idx] = puntaje;
+            setPuntajesIngles(puntajesCopy);
+            console.log(puntajesCopy);
+            setTotalPuntaje(Number(puntajes.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                Number(puntajesCopy.every(v => v === 1) ? 5 : 0));
+            let res = await getById("evaluacion", claveCartel);
+            if (!res.error) {
+                let dataToUpdate = {
+                    puntajesIngles: preguntasIngles.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
+                    totalPuntajeForma: Number(puntajes.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                        Number(puntajesCopy.every(v => v === 1) ? 5 : 0)
+                }
+                await updateItem("evaluacion", claveCartel, dataToUpdate);
+            } else {
+                let dataToSave = {
+                    clave: claveCartel,
+                    evaluado: false,
+                    puntajesIngles: preguntasIngles.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
+                    totalPuntajeForma: Number(puntajes.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                        Number(puntajesCopy.every(v => v === 1) ? 5 : 0)
+                }
+                await createItem("evaluacion", dataToSave, claveCartel);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -97,6 +159,17 @@ const EvaluacionForma = (props) => {
                 }
                 )}
             </div>
+
+            {isEnglishCandidate.current && <div className="calificaciones">
+                {preguntasIngles.map((pregunta, idx) => {
+                    return (
+                        <PreguntaSection key={idx} titulo={pregunta.titulo} pregunta={pregunta.rubrica} respuestas={respuestasIngles}
+                            idxPregunta={idx} setPuntajeSeleccionado={setPuntajeSeleccionadoIngles} puntajes={puntajesIngles} />
+                    )
+                }
+                )}
+            </div>}
+
             <div className="bottomPart">
                 <p className="puntaje">{`Puntaje parcial por criterios de forma: ${totalPuntaje}`}</p>
                 <button className="botonSiguiente" onClick={() => goToContenido()}>Siguiente</button>

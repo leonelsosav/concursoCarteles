@@ -7,15 +7,9 @@ const PreguntaSection = ({ titulo, pregunta, respuestas, idxPregunta, setPuntaje
 
     useEffect(() => {
         if (puntajes.length > 0) {
-            //console.log(puntajes, idxPregunta)
-           /* puntajes[idxPregunta] === 1 ? setSeleccionado([false, true, false]) :
-                puntajes[idxPregunta] === 2 ? setSeleccionado([false, false, true]) :
-                    puntajes[idxPregunta] === 0 ? setSeleccionado([true, false, false]) :
-                        setSeleccionado([false, false, false]);*/
             puntajes[idxPregunta] === -1 ? setSeleccionado(Array(respuestas.length).fill(false))
                 : setSeleccionado(Array(respuestas.length).fill(false).map((v,i)=>i===puntajes[idxPregunta]?true:false));
             firstFlag.current = true;
-            console.log(respuestas);
         }
     }, [puntajes])
 
