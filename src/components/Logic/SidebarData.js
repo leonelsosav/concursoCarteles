@@ -1,5 +1,5 @@
 import React from 'react'
-import { FaHdd, FaPencilAlt, FaBookOpen, FaQuestionCircle, FaUserCog, FaChartBar, FaSignOutAlt, FaBuromobelexperte, FaInfoCircle } from "react-icons/fa";
+import { FaHdd, FaPencilAlt, FaBookOpen, FaQuestionCircle, FaUserCog, FaChartBar, FaSignOutAlt, FaBuromobelexperte, FaInfoCircle, FaWrench } from "react-icons/fa";
 
 export const SidebarData = [
     {
@@ -48,6 +48,12 @@ export const SidebarData = [
         titulo: "Dashboard",
         ruta: "/Dashboard",
         icono: <FaHdd/>,
+        clase: "sidebar-text" 
+    },
+    {
+        titulo: "Administración de puntajes",
+        ruta: "/AdminPuntajes",
+        icono: <FaWrench/>,
         clase: "sidebar-text" 
     },
     {

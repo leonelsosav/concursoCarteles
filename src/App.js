@@ -11,6 +11,7 @@ import EvaluacionForma from './pages/EvaluacionForma';
 import EvaluacionContenido from './pages/EvaluacionContenido';
 import EvaluacionPertinencia from './pages/EvaluacionPertinencia'
 import ResumenEvaluacion from './pages/ResumenEvaluacion'
+import AdminPuntajes from './pages/AdminPuntajes'
 import './App.css';
  
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/AdminPreguntas" element={<AdminPreguntas/>}></Route>
           <Route path="/Evaluaciones" element={<Evaluaciones/>}></Route>
           <Route path="/TiposCarteles" element={<TiposCarteles/>}></Route>
+          <Route path="/AdminPuntajes" element={<AdminPuntajes/>}></Route>
           <Route path="/Dashboard" element={<Dashboard/>}></Route>
           <Route path="/EvaluacionForma/:clave/:tipo" element={<EvaluacionForma/>}></Route>
           <Route path="/EvaluacionContenido/:clave/:tipo" element={<EvaluacionContenido/>}></Route>

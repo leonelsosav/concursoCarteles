@@ -30,7 +30,7 @@ const DAO = () => {
         return await new Promise(async (resolve, reject) => {
             try {
                 const docRef = docf(db, collection, document.toString());
-                updateDocf(docRef, data);
+                await updateDocf(docRef, data);
                 resolve(data);
             } catch (error) {
                 reject({ error: error });
