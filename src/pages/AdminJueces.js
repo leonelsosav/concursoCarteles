@@ -35,6 +35,10 @@ const AdminJueces = () => {
                 }
             })
             setJueces(data);
+            // for await (let juez of data) {
+            //     await createItem("usuario", { password: "ConcursoMayab", isLoggedIn: false, IdJuez: juez.Id, rol: "Juez" }, juez.apellidos.trim().toUpperCase() + "_" + juez.nombre.trim().toUpperCase());
+            //     console.log(juez.id);
+            // }
         }
         retrieve();
     }, []);

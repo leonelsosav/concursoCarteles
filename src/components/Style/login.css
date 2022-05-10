@@ -1,0 +1,68 @@
+.formularioLogin{
+    width: 50%;
+    display:block;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 20px;
+}
+
+.imgs{
+    width: 100%;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.imgLogin{
+    max-width: 50%;
+    max-height: 100px;
+}
+
+#grande{
+    font-size: 2rem;
+}
+
+#usuarioInput, #contraInput{
+    width: 80%;
+    display: block;
+    margin: auto;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ff5900;
+    border-radius: 5px;
+    background-color: transparent;
+    color: #ff5900;
+}
+
+.btnLogin{
+    width: 60%;
+    display: block;
+    margin: auto;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: transparent;
+    border: 1px solid #ff5900;
+    color: #ff5900;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.btnLogin:hover{
+    background-color: #ff5900;
+    color: #fff;
+}
+
+@media screen and (max-width: 1000px){
+    .formularioLogin{
+        width: 90%;
+    }
+}

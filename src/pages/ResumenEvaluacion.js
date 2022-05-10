@@ -12,7 +12,6 @@ const ResumenEvaluacion = (props) => {
   const [claveCartel, setClaveCartel] = useState(useParams().clave);
   const [tipoCartel, setTipoCartel] = useState(useParams().tipo);
   const [cartel, setCartel] = useState({});
-  const [evaluacion, setEvaluacion] = useState({});
   const { getWhereWhere, getById, updateItem } = DAO();
   const [options, setOptions] = useState({});
   var CanvasJS = CanvasJSReact.CanvasJS;
@@ -22,8 +21,6 @@ const ResumenEvaluacion = (props) => {
     const getData = async () => {
       let data = await getById("cartel", claveCartel);
       setCartel(data);
-      data = await getById("evaluacion", claveCartel);
-      setEvaluacion(data);
     }
     getData();
   }, [])
@@ -36,13 +33,13 @@ const ResumenEvaluacion = (props) => {
       data: [{
         type: "column",
         dataPoints: [
-          { label: "Forma", y: evaluacion.totalPuntajeForma },
-          { label: "Contenido", y: evaluacion.totalPuntajeContenido },
-          { label: "Pertinencia", y: evaluacion.totalPuntajePertinencia }
+          { label: "Forma", y: cartel.totalPuntajeForma },
+          { label: "Contenido", y: cartel.totalPuntajeContenido },
+          { label: "Pertinencia", y: cartel.totalPuntajePertinencia }
         ]
       }]
     });
-  }, [evaluacion]);
+  }, [cartel]);
 
   return (
     <>
@@ -72,22 +69,22 @@ const ResumenEvaluacion = (props) => {
         </div>
         <div className="row">
           <p className="t1">Puntaje total de criterios de forma</p>
-          <p className="t2">{evaluacion.totalPuntajeForma}</p>
+          <p className="t2">{cartel.totalPuntajeForma}</p>
         </div>
         <div className="row">
           <p className="t1">Puntaje total de criterios de contenido</p>
-          <p className="t2">{evaluacion.totalPuntajeContenido}</p>
+          <p className="t2">{cartel.totalPuntajeContenido}</p>
         </div>
         <div className="row">
           <p className="t1">Puntaje total de criterios de pertinencia</p>
-          <p className="t2">{evaluacion.totalPuntajePertinencia}</p>
+          <p className="t2">{cartel.totalPuntajePertinencia}</p>
         </div>
       </div>
 
 
       <div className="calificaciones">
         <p className="titulo">Criterios de forma</p>
-        {evaluacion.puntajesForma && evaluacion.puntajesForma.map((val, i) => {
+        {cartel.puntajesForma && cartel.puntajesForma.map((val, i) => {
           return (
             <div key={i} className="row2">
               <p className="t2">{Object.keys(val)[0]}</p>
@@ -95,11 +92,11 @@ const ResumenEvaluacion = (props) => {
             </div>
           )
         })}
-        <p className="titulo">{`Total de puntos en el criterio de Forma: ${evaluacion.totalPuntajeForma}`}</p>
+        <p className="titulo">{`Total de puntos en el criterio de Forma: ${cartel.totalPuntajeForma}`}</p>
 
 
         <p className="titulo">Criterios de contenido</p>
-        {evaluacion.puntajesContenido && evaluacion.puntajesContenido.map((val, i) => {
+        {cartel.puntajesContenido && cartel.puntajesContenido.map((val, i) => {
           return (
             <div key={i} className="row2">
               <p className="t2">{Object.keys(val)[0]}</p>
@@ -107,11 +104,11 @@ const ResumenEvaluacion = (props) => {
             </div>
           )
         })}
-        <p className="titulo">{`Total de puntos en el criterio de Contenido: ${evaluacion.totalPuntajeContenido}`}</p>
+        <p className="titulo">{`Total de puntos en el criterio de Contenido: ${cartel.totalPuntajeContenido}`}</p>
 
 
         <p className="titulo">Criterios de pertinencia</p>
-        {evaluacion.puntajesPertinencia && evaluacion.puntajesPertinencia.map((val, i) => {
+        {cartel.puntajesPertinencia && cartel.puntajesPertinencia.map((val, i) => {
           return (
             <div key={i} className="row2">
               <p className="t2">{Object.keys(val)[0]}</p>
@@ -119,7 +116,7 @@ const ResumenEvaluacion = (props) => {
             </div>
           )
         })}
-        <p className="titulo">{`Total de puntos en el criterio de Pertinencia: ${evaluacion.totalPuntajePertinencia}`}</p>
+        <p className="titulo">{`Total de puntos en el criterio de Pertinencia: ${cartel.totalPuntajePertinencia}`}</p>
       </div>
 
       <div className="bottomPart">

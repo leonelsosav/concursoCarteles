@@ -25,7 +25,7 @@ const EvaluacionContenido = (props) => {
             setRespuestas(data.respuestasPosibles.contenido);
             data = await getWhereWhere("pregunta", "criterio", "==", "Contenido", "tipo", "==", tipoCartel);
             setPreguntas(data);
-            let res = await getById("evaluacion", claveCartel);
+            let res = await getById("cartel", claveCartel);
             if (!res.error) {
                 if (res.puntajesContenido) {
                     let puntajesFromDatabase = res.puntajesContenido;
@@ -37,7 +37,7 @@ const EvaluacionContenido = (props) => {
                     setPuntajes(Array(data.length).fill(-1));
                 }
             } else {
-                navigate("/");
+                navigate("/NuevaEvaluacion");
             }
         }
         retrieve();
@@ -68,7 +68,7 @@ const EvaluacionContenido = (props) => {
                 puntajesContenido: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
                 totalPuntajeContenido: puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)
             }
-            await updateItem("evaluacion", claveCartel, dataToUpdate);
+            await updateItem("cartel", claveCartel, dataToUpdate);
         } catch (error) {
             console.log(error);
         }

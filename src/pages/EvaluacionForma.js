@@ -42,10 +42,11 @@ const EvaluacionForma = (props) => {
             setPreguntasIngles(arrIngles);
             data.splice(inglesIdx, 1);
             setPreguntas(data);
-            let res = await getById("evaluacion", claveCartel);
-            if (!res.error) {
+            let res = await getById("cartel", claveCartel);
+            if (res.puntajesForma) {
                 let puntajesFromDatabase = res.puntajesForma;
                 puntajesFromDatabase = puntajesFromDatabase.map(v => Object.values(v)[0]);
+                puntosMinIngles <= puntajesFromDatabase.reduce((a, b) => b < 0 ? a : a + b, 0) ? (isEnglishCandidate.current = true) : (isEnglishCandidate.current = false);
                 setPuntajes(puntajesFromDatabase);
 
                 if (res.puntajesIngles) {
@@ -53,7 +54,6 @@ const EvaluacionForma = (props) => {
                     puntajesInglesFromDatabase = puntajesInglesFromDatabase.map(v => Object.values(v)[0]);
                     setPuntajesIngles(puntajesInglesFromDatabase);
                 }
-                console.log(res.puntajesIngles)
                 setTotalPuntaje(Number(puntajesFromDatabase.reduce((a, b) => b < 0 ? a : a + b, 0)) +
                     ((res.puntajesIngles && isEnglishCandidate.current) ? (res.puntajesIngles.map(v => Object.values(v)[0]).every(v => v === 1) ? 5 : 0) : 0));
             } else {
@@ -63,10 +63,6 @@ const EvaluacionForma = (props) => {
         }
         retrieve();
     }, []);
-
-    useEffect(() => {
-        puntosInglesMin <= puntajes.reduce((a, b) => b < 0 ? a : a + b, 0) ? (isEnglishCandidate.current = true) : (isEnglishCandidate.current = false);
-    },[puntajes]);
 
     const goToContenido = () => {
         if (puntajes.some(v => v < 0) || (isEnglishCandidate.current && puntajesIngles.some(v => v < 0))) {
@@ -87,29 +83,20 @@ const EvaluacionForma = (props) => {
     const setPuntajeSeleccionado = async (idx, puntaje) => {
         try {
             let puntajesCopy = puntajes.slice();
-            console.log(puntajes);
             puntajesCopy[idx] = puntaje;
+            puntosInglesMin <= puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0) ? (isEnglishCandidate.current = true) : (isEnglishCandidate.current = false);
             setPuntajes(puntajesCopy);
-            let res = await getById("evaluacion", claveCartel);
             setTotalPuntaje(Number(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)) +
                 (isEnglishCandidate.current ? (Number(puntajesIngles.every(v => v === 1) ? 5 : 0)) : 0));
-            if (!res.error) {
-                let dataToUpdate = {
-                    puntajesForma: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: Number(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)) +
-                        (isEnglishCandidate.current ? (Number(puntajesIngles.every(v => v === 1) ? 5 : 0)) : 0)
-                }
-                await updateItem("evaluacion", claveCartel, dataToUpdate);
-            } else {
-                let dataToSave = {
-                    clave: claveCartel,
-                    evaluado: false,
-                    puntajesForma: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: Number(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)) +
-                        (isEnglishCandidate.current ? (Number(puntajesIngles.every(v => v === 1) ? 5 : 0)) : 0)
-                }
-                await createItem("evaluacion", dataToSave, claveCartel);
+            let dataToUpdate = {
+                evaluado: false,
+                puntajesForma: preguntas.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
+                totalPuntajeForma: Number(puntajesCopy.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                    (isEnglishCandidate.current ? (Number(puntajesIngles.every(v => v === 1) ? 5 : 0)) : 0)
             }
+            await updateItem("cartel", claveCartel, dataToUpdate);
+
+
         } catch (error) {
             console.log(error);
         }
@@ -123,24 +110,14 @@ const EvaluacionForma = (props) => {
             console.log(puntajesCopy);
             setTotalPuntaje(Number(puntajes.reduce((a, b) => b < 0 ? a : a + b, 0)) +
                 Number(puntajesCopy.every(v => v === 1) ? 5 : 0));
-            let res = await getById("evaluacion", claveCartel);
-            if (!res.error) {
-                let dataToUpdate = {
-                    puntajesIngles: preguntasIngles.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: Number(puntajes.reduce((a, b) => b < 0 ? a : a + b, 0)) +
-                        Number(puntajesCopy.every(v => v === 1) ? 5 : 0)
-                }
-                await updateItem("evaluacion", claveCartel, dataToUpdate);
-            } else {
-                let dataToSave = {
-                    clave: claveCartel,
-                    evaluado: false,
-                    puntajesIngles: preguntasIngles.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
-                    totalPuntajeForma: Number(puntajes.reduce((a, b) => b < 0 ? a : a + b, 0)) +
-                        Number(puntajesCopy.every(v => v === 1) ? 5 : 0)
-                }
-                await createItem("evaluacion", dataToSave, claveCartel);
+            let dataToUpdate = {
+                evaluado: false,
+                puntajesIngles: preguntasIngles.map((v, i) => { return { [v.titulo]: puntajesCopy[i] } }),
+                totalPuntajeForma: Number(puntajes.reduce((a, b) => b < 0 ? a : a + b, 0)) +
+                    Number(puntajesCopy.every(v => v === 1) ? 5 : 0)
             }
+            await updateItem("cartel", claveCartel, dataToUpdate);
+
         } catch (error) {
             console.log(error);
         }
