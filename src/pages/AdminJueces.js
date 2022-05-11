@@ -10,7 +10,7 @@ import * as alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.css';
 
 const AdminJueces = () => {
-    const { getAll, createItem, updateItem, deleteItem, getOrderByLimit } = DAO();
+    const { getAll, createItem, updateItem, deleteItem, getOrderByLimit, getWhere } = DAO();
     const [jueces, setJueces] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [showFormEdit, setShowFormEdit] = useState(false);
@@ -25,19 +25,24 @@ const AdminJueces = () => {
 
     useEffect(() => {
         let retrieve = async () => {
-            let data = await getAll("juez");
-            data = data.map((juez, idx) => {
-                return {
-                    id: idx,
-                    Id: juez.Id,
-                    nombre: juez.nombre,
-                    apellidos: juez.apellidos,
-                }
-            })
-            setJueces(data);
+            let data = await getWhere("juez", "rol", "==", "Juez");
+            if (data.length > 0) {
+                data = data.map((juez, idx) => {
+                    return {
+                        id: idx,
+                        Id: juez.Id,
+                        nombre: juez.nombre,
+                        apellidos: juez.apellidos,
+                    }
+                })
+                setJueces(data);
+            }
             // for await (let juez of data) {
-            //     await createItem("usuario", { password: "ConcursoMayab", isLoggedIn: false, IdJuez: juez.Id, rol: "Juez" }, juez.apellidos.trim().toUpperCase() + "_" + juez.nombre.trim().toUpperCase());
-            //     console.log(juez.id);
+            //     await updateItem("juez", juez.Id, {
+            //         password: "ConcursoMayab", isLoggedIn: false, rol: "Juez",
+            //         user: juez.apellidos.trim().toUpperCase() + "_" + juez.nombre.trim().toUpperCase()
+            //     });
+            //     console.log(juez.Id);
             // }
         }
         retrieve();
@@ -116,8 +121,12 @@ const AdminJueces = () => {
     const createJuez = async (juezInfo) => {
         try {
             let newObj = {
-                nombre: juezInfo.Nombre,
-                apellidos: juezInfo.Apellidos,
+                nombre: juezInfo.Nombre.trim().toUpperCase(),
+                apellidos: juezInfo.Apellidos.trim().toUpperCase(),
+                isLoggedIn: false,
+                rol: "Juez",
+                password: "ConcursoMayab",
+                user: juezInfo.Apellidos.trim().toUpperCase() + "_" + juezInfo.Nombre.trim().toUpperCase(),
             };
             newObj.Id = await getOrderByLimit("juez", "Id", "desc", 1);
             newObj.Id = newObj.Id.Id + 1;

@@ -6,10 +6,12 @@ import { IconContext } from 'react-icons'
 import * as FaIcons from 'react-icons/fa'
 import Logo from '../../assets/logo.png'
 import Cookies from 'universal-cookie';
+import DAO from '../Logic/DAO'
 
 const Sidebar = () => {
     const [sidebar, setSidebar] = useState(window.innerWidth > 1000);
     const cookies = new Cookies();
+    const {updateItem} = DAO();
     const [rol, setRol] = useState('');
 
     const handleResize = () => {
@@ -31,7 +33,8 @@ const Sidebar = () => {
 
     }, [])
 
-    const logout = () => {
+    const logout = async() => {
+        await updateItem('juez', cookies.get('idJuez'), {isLoggedIn: false});
         cookies.remove('rol');
         cookies.remove('idJuez');
         cookies.remove('usuario');

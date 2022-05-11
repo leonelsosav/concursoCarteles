@@ -5,17 +5,19 @@ import '../components/Style/nuevaEvaluacion.css'
 import DAO from '../components/Logic/DAO'
 import { FaFilePdf } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'universal-cookie';
 
 const NuevaEvaluacion = () => {
     let navigate = useNavigate();
     const { getWhere } = DAO();
+    const cookies = new Cookies();
     const [carteles, setCarteles] = useState([]);
     const [cartelSeleccionado, setCartelSeleccionado] = useState({});
     const [showCartelInfo, setShowCartelInfo] = useState(false);
 
     useEffect(() => {
         let retrieve = async () => {
-            let data = await getWhere("cartel", "juez", "==", "21");
+            let data = await getWhere("cartel", "juez", "==", cookies.get('idJuez'));
             setCarteles(data);
         }
         retrieve();

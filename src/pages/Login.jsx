@@ -11,21 +11,21 @@ import 'alertifyjs/build/css/alertify.css';
 const Login = () => {
     const [usuarioInput, setUsuarioInput] = useState('');
     const [passwordInput, setPasswordInput] = useState('');
-    const { getById, updateItem } = DAO();
+    const { getWhere, updateItem } = DAO();
     const cookies = new Cookies();
 
     const handleLogin = async (e) => {
         if (usuarioInput.length > 0 || passwordInput.length > 0) {
             e.preventDefault();
-            let res = await getById("usuario", usuarioInput);
+            let res = await getWhere("juez", "user","==", usuarioInput);
             if (res.error) {
                 alertify.error("Usuario no existe");
             } else {
                 if (res.password === passwordInput) {
                     alertify.success("Bienvenido");
-                    await updateItem("usuario", usuarioInput, { isLoggedIn: true });
+                    await updateItem("juez", res.Id, { isLoggedIn: true });
                     cookies.set('usuario', usuarioInput, { path: '/' });
-                    cookies.set('idJuez', res.IdJuez, { path: '/' });
+                    cookies.set('idJuez', res.Id, { path: '/' });
                     cookies.set('rol', res.rol, { path: '/' });
                     window.location.href = "/NuevaEvaluacion";
                 } else {
@@ -35,6 +35,7 @@ const Login = () => {
     } else {
         alertify.error("Ingrese un usuario y/o contraseña por favor");
     }
+
     }
     return (
         <div style={{ backgroundImage: `url(${loginImg})`, height: '100vh', width: '100vw' }}>

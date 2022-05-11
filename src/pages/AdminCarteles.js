@@ -12,6 +12,7 @@ import 'alertifyjs/build/css/alertify.css';
 const AdminCarteles = () => {
     const { getAll, createItem, updateItem, deleteItem } = DAO();
     const [carteles, setCarteles] = useState([]);
+    const [jueces, setJueces] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [showFormEdit, setShowFormEdit] = useState(false);
 
@@ -30,22 +31,32 @@ const AdminCarteles = () => {
     useEffect(() => {
         let retrieve = async () => {
             let data = await getAll("cartel");
-            data = data.map((cartel, idx) => {
-                return {
-                    id: idx,
-                    clave: cartel.clave,
-                    titulo: cartel.titulo,
-                    autor: cartel.autor,
-                    juez: cartel.juez,
-                    nombreJuez: cartel.juez,
-                    tipo: cartel.tipo,
-                    link: cartel.link
-                }
-            })
-            setCarteles(data);
+            if (data.length > 0) {
+                data = data.map((cartel, idx) => {
+                    return {
+                        id: idx,
+                        clave: cartel.clave,
+                        titulo: cartel.titulo,
+                        autor: cartel.autor,
+                        juez: cartel.juez,
+                        nombreJuez: cartel.juez,
+                        tipo: cartel.tipo,
+                        link: cartel.link
+                    }
+                })
+                setCarteles(data);
+            }
+            data = await getAll("juez");
+            !data.error && setJueces(data);
         }
         retrieve();
     }, []);
+
+    useEffect(() => {
+        if (jueces.length > 0) {
+            setCarteles(carteles.map(cartel => ({...cartel, nombreJuez: jueces.find(juez => juez.Id == cartel.juez)?.nombre})));
+        }
+    },[jueces]);
 
     const columns = [
         {
@@ -112,7 +123,7 @@ const AdminCarteles = () => {
     const deleteCartel = async (id) => {
         console.log(id)
         alertify.confirm("Anahuac Mayab", "¿Estas seguro de eliminar este cartel?", async () => {
-            let res = await deleteItem("cartel", carteles[id].clave); 
+            let res = await deleteItem("cartel", carteles[id].clave);
             if (!res.error) {
                 let dataa = carteles.filter((cartel, idx) => idx !== id).map((cartel, idx) => {
                     return {
@@ -124,10 +135,10 @@ const AdminCarteles = () => {
                         nombreJuez: cartel.nombreJuez,
                         tipo: cartel.tipo,
                         link: cartel.link
-                        }
-                        })
-                        setCarteles(dataa);
-                        alertify.success("Cartel eliminado");
+                    }
+                })
+                setCarteles(dataa);
+                alertify.success("Cartel eliminado");
             } else {
                 alertify.error("Error al eliminar cartel");
             }

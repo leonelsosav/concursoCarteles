@@ -29,17 +29,19 @@ const AdminPreguntas = () => {
         let retrieve = async () => {
             console.log(inputs)
             let data = await getAll("pregunta");
-            data = data.map((pregunta, idx) => {
-                return {
-                    id: idx,
-                    Id: pregunta.Id,
-                    titulo: pregunta.titulo,
-                    tipo: pregunta.tipo,
-                    rubrica: pregunta.rubrica,
-                    criterio: pregunta.criterio
-                }
-            })
-            setPreguntas(data);
+            if (data.length > 0) {
+                data = data.map((pregunta, idx) => {
+                    return {
+                        id: idx,
+                        Id: pregunta.Id,
+                        titulo: pregunta.titulo,
+                        tipo: pregunta.tipo,
+                        rubrica: pregunta.rubrica,
+                        criterio: pregunta.criterio
+                    }
+                })
+                setPreguntas(data);
+            }
         }
         retrieve();
     }, []);
