@@ -134,8 +134,8 @@ const AdminJueces = () => {
                 password: "ConcursoMayab",
                 user: juezInfo.Apellidos.trim().toUpperCase() + "_" + juezInfo.Nombre.trim().toUpperCase(),
             };
-            newObj.Id = await getOrderByLimit("juez", "Id", "desc", 1);
-            newObj.Id = newObj.Id.Id + 1;
+            newObj.Id = await getOrderByLimit("juez", "Id", "desc", 2);
+            newObj.Id = newObj.Id[1].Id + 1;
             let res = await createItem("juez", newObj, newObj.Id);
             if (!res.error) {
                 setJueces([...jueces, { id: jueces.length, ...newObj }]);

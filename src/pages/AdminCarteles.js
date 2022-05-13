@@ -23,9 +23,7 @@ const AdminCarteles = () => {
     const estructura = useRef([
         { nombre: "Clave", tipo: "text" },
         { nombre: "Titulo", tipo: "text" },
-        { nombre: "Autor", tipo: "text" },
         { nombre: "Juez", tipo: "number" },
-        { nombre: "Nombre del juez", tipo: "text" },
         { nombre: "Tipo", tipo: "text" },
         { nombre: "Link", tipo: "text" }
     ]);
@@ -41,7 +39,6 @@ const AdminCarteles = () => {
                         id: idx,
                         clave: cartel.clave,
                         titulo: cartel.titulo,
-                        autor: cartel.autor,
                         juez: cartel.juez,
                         nombreJuez: cartel.juez,
                         tipo: cartel.tipo,
@@ -58,7 +55,10 @@ const AdminCarteles = () => {
 
     useEffect(() => {
         if (jueces.length > 0) {
-            setCarteles(carteles.map(cartel => ({ ...cartel, nombreJuez: jueces.find(juez => juez.Id == cartel.juez)?.nombre })));
+            setCarteles(carteles.map(cartel => {
+                let jCorrespondiente = jueces.find(juez => juez.Id == cartel.juez)
+                return { ...cartel, nombreJuez: jCorrespondiente?.nombre + " " + jCorrespondiente?.apellidos }
+            }));
         }
     }, [jueces]);
 
@@ -76,22 +76,16 @@ const AdminCarteles = () => {
             width: "200px"
         },
         {
-            name: 'Autor',
-            selector: row => row.autor,
-            sortable: true,
-            width: "150px"
-        },
-        {
             name: 'Juez',
             selector: row => row.juez,
             sortable: true,
-            width: "70px"
+            width: "100px"
         },
         {
             name: 'Nombre del juez',
             selector: row => row.nombreJuez,
             sortable: true,
-            width: "150px"
+            width: "250px"
         },
         {
             name: 'Tipo',
@@ -125,7 +119,6 @@ const AdminCarteles = () => {
                         id: idx,
                         clave: cartel.clave,
                         titulo: cartel.titulo,
-                        autor: cartel.autor,
                         juez: cartel.juez,
                         nombreJuez: cartel.nombreJuez,
                         tipo: cartel.tipo,
@@ -151,9 +144,7 @@ const AdminCarteles = () => {
             let newObj = {
                 clave: cartelInfo.Clave,
                 titulo: cartelInfo.Titulo,
-                autor: cartelInfo.Autor,
                 juez: cartelInfo.Juez,
-                nombreJuez: cartelInfo.Juez,
                 tipo: cartelInfo.Tipo,
                 link: cartelInfo.Link
             };
@@ -161,7 +152,7 @@ const AdminCarteles = () => {
             if (!res.error) {
                 let cartelLookedFor = carteles.find(cartel => cartel.clave === newObj.clave);
                 let idx = carteles.indexOf(cartelLookedFor);
-                setCarteles(carteles.map((cartel, i) => idx === i ? { id: cartel.id, ...newObj } : cartel));
+                setCarteles(carteles.map((cartel, i) => idx === i ? { id: cartel.id, ...newObj, nombreJuez:cartel.nombreJuez } : cartel));
                 setShowFormEdit(false);
                 alertify.alert('Anahuac Mayab', '¡Cartel editado!', () => { alertify.success('Ok'); });
             } else alertify.alert('Anahuac Mayab', '¡No se pudo editar el cartel, intentelo de nuevo!', () => { alertify.success('Ok'); });
@@ -175,15 +166,16 @@ const AdminCarteles = () => {
             let newObj = {
                 clave: cartelInfo.Clave,
                 titulo: cartelInfo.Titulo,
-                autor: cartelInfo.Autor,
                 juez: cartelInfo.Juez,
-                nombreJuez: cartelInfo.Juez,
                 tipo: cartelInfo.Tipo,
                 link: cartelInfo.Link
             };
             let res = await createItem("cartel", newObj, newObj.clave);
             if (!res.error) {
-                setCarteles([...carteles, { id: carteles.length, ...newObj }]);
+                let juezCorrespondiente = jueces.find(juez => juez.Id == newObj.juez);
+                console.log(juezCorrespondiente);
+                setCarteles([...carteles, { id: carteles.length, ...newObj, 
+                    nombrejuez: (juezCorrespondiente.nombre + " " + juezCorrespondiente.apellidos)}]);
                 setShowForm(false);
                 alertify.alert('Anahuac Mayab', '¡Cartel agregado!', () => { alertify.success('Ok'); });
             } else alertify.alert('Anahuac Mayab', '¡No se pudo agregar el cartel, intentelo de nuevo!', () => { alertify.success('Ok'); });
@@ -213,7 +205,6 @@ const AdminCarteles = () => {
                     //id: carteles.length,
                     clave: cartel.Clave.toString(),
                     titulo: cartel.Titulo,
-                    autor: cartel.Autor,
                     juez: cartel.Juez,
                     //nombreJuez: cartel["Nombre del juez"],
                     tipo: cartel.Tipo,
@@ -225,9 +216,8 @@ const AdminCarteles = () => {
                         id: carteles.length + counter,
                         clave: cartel.Clave.toString(),
                         titulo: cartel.Titulo,
-                        autor: cartel.Autor,
                         juez: cartel.Juez,
-                        nombreJuez: jueces.find(juez => juez.Id == dataToAdd.juez)?.nombre,
+                        nombreJuez: jueces.find(juez => juez.Id == dataToAdd.juez)?.nombre + " " + jueces.find(juez => juez.Id == dataToAdd.juez)?.apellidos,
                         tipo: cartel.Tipo,
                         link: cartel.Link
                     }
