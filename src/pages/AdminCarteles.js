@@ -17,6 +17,8 @@ const AdminCarteles = () => {
     const [selectedFile, setSelectedFile] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [showFormEdit, setShowFormEdit] = useState(false);
+    const [showAnimation, setShowAnimation] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const estructura = useRef([
         { nombre: "Clave", tipo: "text" },
@@ -65,54 +67,45 @@ const AdminCarteles = () => {
             name: 'Clave',
             selector: row => row.clave,
             sortable: true,
-            minWidth: "1%",
-            maxWidth: "4%"
+            width: "100px"
         },
         {
             name: 'Titulo',
             selector: row => row.titulo,
             sortable: true,
-            minWidth: "1%",
-            maxWidth: "4%"
+            width: "200px"
         },
         {
             name: 'Autor',
             selector: row => row.autor,
             sortable: true,
-            minWidth: "1%",
-            maxWidth: "6%"
+            width: "150px"
         },
         {
             name: 'Juez',
             selector: row => row.juez,
             sortable: true,
-            minWidth: "1%",
-            maxWidth: "4%"
+            width: "70px"
         },
         {
             name: 'Nombre del juez',
             selector: row => row.nombreJuez,
             sortable: true,
-            minWidth: "1%",
-            maxWidth: "5%"
+            width: "150px"
         },
         {
             name: 'Tipo',
             selector: row => row.tipo,
             sortable: true,
-            minWidth: "1%",
-            maxWidth: "5%"
+            width: "150px"
         },
         {
             name: 'Link',
             selector: row => row.link,
             sortable: true,
-            minWidth: "1%",
-            maxWidth: "4%"
+            width: "150px"
         },
         {
-            minWidth: "1%",
-            maxWidth: "3%",
             cell: row => (
                 <>
                     <FaEdit style={{ color: "green", "fontSize": "1.5em", "marginRight": "10px" }} onClick={() => openEditForm(row.id)} />
@@ -214,6 +207,7 @@ const AdminCarteles = () => {
             })
             let cartelesToAdd = [];
             let counter = 0;
+            setShowAnimation(true);
             for await (let cartel of cartelesToSave) {
                 let dataToAdd = {
                     //id: carteles.length,
@@ -242,6 +236,7 @@ const AdminCarteles = () => {
                 }
             }
             setCarteles([...carteles, ...cartelesToAdd]);
+            setShowAnimation(false);
             alertify.alert('Anahuac Mayab', '¡Carteles agregados!', () => { alertify.success('Ok'); });
         } catch (error) {
             console.log(error)
@@ -261,6 +256,18 @@ const AdminCarteles = () => {
         reader.readAsText(file);
     }
 
+    const eliminarTodo = async () => {
+        alertify.confirm("Anahuac Mayab", "¿Estas seguro de eliminar este cartel?", async () => {
+            setShowAnimation(true);
+            for await (let cartel of carteles) {
+                await deleteItem("cartel", cartel.clave);
+            }
+            setCarteles([]);
+            setShowAnimation(false);
+            alertify.success("Carteles eliminados");
+        }, () => { alertify.error('Cancel'); });
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
@@ -269,23 +276,36 @@ const AdminCarteles = () => {
                 {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir cartel"}</button>}
                 <input type="file" name="File" id="File" accept=".csv" value={selectedFile} onChange={(e) => handleFileSelect(e)}></input>
                 <label htmlFor="File">Importar carteles</label>
-                <div id="loaderAnim" >
-                    <div className="sk-chase">
-                        <div className="sk-chase-dot"></div>
-                        <div className="sk-chase-dot"></div>
-                        <div className="sk-chase-dot"></div>
-                        <div className="sk-chase-dot"></div>
-                        <div className="sk-chase-dot"></div>
-                        <div className="sk-chase-dot"></div>
-                    </div>
-                    <p id="porcentajeLoader">0%</p>
-                </div>
+                <button className='btnEliminarTodo' onClick={() => eliminarTodo()}>Eliminar todo</button>
+                {showAnimation &&
+                    <div id="loaderAnim" >
+                        <div className="sk-chase">
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                        </div>
+                    </div>}
                 {showForm && <Form txtBtn="Guardar Cartel" estructura={estructura.current} guardarNuevoFn={createCartel} inputs={inputs} setInputs={setInputs}></Form>}
                 {showFormEdit && <button className="btnAdd" onClick={() => setShowFormEdit(false)}>Cerrar</button>}
                 {showFormEdit && <FormEdit txtBtn="Editar Cartel" estructura={estructura.current} editarCartelFn={editCartel} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}
+                <br />
+                <label htmlFor="searchTerm" style={{ width: 'fit-content' }}>Buscar:</label>
+                <input type="text" name="searchTerm" id="searchTerm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 <DataTable
+                    pagination="true"
                     columns={columns}
-                    data={carteles}
+                    data={carteles.filter((item) => {
+                        if (searchTerm === "") {
+                            return item;
+                        } else if (
+                            item.clave.toLowerCase().includes(searchTerm.toLowerCase())
+                        ) {
+                            return item;
+                        }
+                    })}
                 />
             </div>
         </>

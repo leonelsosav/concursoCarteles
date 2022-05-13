@@ -6,6 +6,8 @@ import DAO from '../components/Logic/DAO'
 import { FaFilePdf } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Cookies from 'universal-cookie';
+import { BsFillExclamationCircleFill, BsFillXCircleFill } from "react-icons/bs";
+import { FaCheckCircle } from 'react-icons/fa';
 
 const NuevaEvaluacion = () => {
     let navigate = useNavigate();
@@ -18,7 +20,7 @@ const NuevaEvaluacion = () => {
     useEffect(() => {
         let retrieve = async () => {
             let data = await getWhere("cartel", "juez", "==", cookies.get('idJuez'));
-            setCarteles(data);
+            setCarteles(Array.isArray(data) ? data : [data]);
         }
         retrieve();
     }, []);
@@ -44,6 +46,8 @@ const NuevaEvaluacion = () => {
                     </select>
                 </div>
                 {showCartelInfo && <div className="infoCartel">
+                    {!('evaluado' in cartelSeleccionado) ? <BsFillXCircleFill style={{ color: 'red', display: 'inline-block' }} />
+                        : cartelSeleccionado.evaluado ? <FaCheckCircle style={{ color: 'green', display: 'inline-block' }} /> : <BsFillExclamationCircleFill style={{ color: 'orange', display: 'inline-block' }} />}
                     <p className="labelTitulo">Clave:</p>
                     <p className="info">{cartelSeleccionado.clave}</p>
                     <p className="labelTitulo">Titulo:</p>
@@ -55,7 +59,7 @@ const NuevaEvaluacion = () => {
                     <br />
                     <a href={cartelSeleccionado.link} target="_blank" rel="noreferrer noopener" className="linkCartel">Ver Cartel <FaFilePdf /></a>
                 </div>}
-                <button id="botonSiguiente" disabled={!showCartelInfo} className="botonSiguiente" onClick={() => navigate("/EvaluacionForma/"+cartelSeleccionado.clave+"/"+cartelSeleccionado.tipo)}>Comenzar Evaluación</button>
+                <button id="botonSiguiente" disabled={!showCartelInfo} className="botonSiguiente" onClick={() => window.location.href = ("/EvaluacionForma/" + cartelSeleccionado.clave + "/" + cartelSeleccionado.tipo.replace('/','-'))}>Comenzar Evaluación</button>
             </div>
         </>
     )

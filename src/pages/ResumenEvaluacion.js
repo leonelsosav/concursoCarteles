@@ -122,7 +122,7 @@ const ResumenEvaluacion = (props) => {
       <div className="bottomPart">
         <CanvasJSChart options={options}/>
         <p className="titulo">Estimado juez, por favor continúe con la evaluación del siguiente cartel. Presione comenzar nueva evaluación.</p>
-        <button className="botonSiguiente" onClick={() => navigate("/")}>Comenzar nueva evaluación</button>
+        <button className="botonSiguiente" onClick={() => navigate("/NuevaEvaluacion")}>Comenzar nueva evaluación</button>
       </div>
     </>
   )

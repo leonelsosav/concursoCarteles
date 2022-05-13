@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from '../components/UI/Sidebar'
 import TopBar from '../components/UI/TopBar'
 import DataTable from 'react-data-table-component';
 import DAO from '../components/Logic/DAO'
+import * as alertify from 'alertifyjs';
+import 'alertifyjs/build/css/alertify.css';
 
 const Evaluaciones = () => {
-    const { getWhere, getAll } = DAO();
+    const { getWhere, getAll, deleteItem } = DAO();
+    const [showAnimation, setShowAnimation] = useState(false);
     const [evaluaciones, setEvaluaciones] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         let retrieve = async () => {
@@ -107,12 +111,8 @@ const Evaluaciones = () => {
         },
     ];
 
-    const exportarInfo = () => {
-        //let loaderAnim = document.getElementById("loaderAnim");
-        //let porcentajeLoader = document.getElementById("porcentajeLoader");
-        //let i = 1;
-        //loaderAnim.style.display = "block";
-
+    const exportarInfo = async () => {
+        setShowAnimation(true);
         const titulos = ["Nombre del Evaluador", "Clave QR", "Nombre del Cartel", "Seleccionar Rubrica"];
 
         let csvContent = "";
@@ -124,37 +124,35 @@ const Evaluaciones = () => {
         csvContent += preguntasUnicas.join("|") + "|" + "Puntos en ingles" + "|" + "Puntos de Contenido" + "|" + "Puntos de Forma" + "|" + "Puntos de Pertinencia" + "|" + "TOTAL";
         csvContent += "\r\n";
 
-        let evaluacionesFinalizadas = await getWhere("cartel", "evaluado", "==", true);
-        for await (let evaluacion of evaluacionesFinalizadas) {
-            //porcentajeLoader.innerText = (i * 100 / evaluacionesFinalizadas.length).toFixed(2) + "%";
-            let cartel = await driver.read("cartel", evaluacion.clave);
-            let juez = await driver.read("juez", cartel.juez);
+        let cartelesEvaluados = await getWhere("cartel", "evaluado", "==", true);
+        let jueces = await getAll("juez");
+        for await (let cartelEvaluado of cartelesEvaluados) {
+            let juez = jueces.find(juez => juez.Id == cartelEvaluado.juez);
             csvContent += juez.nombre + " " + juez.apellidos + "|";
-            csvContent += cartel.id + "|";
-            csvContent += cartel.titulo + "|";
-            csvContent += cartel.tipo + "|";
+            csvContent += cartelEvaluado.clave + "|";
+            csvContent += cartelEvaluado.titulo + "|";
+            csvContent += cartelEvaluado.tipo + "|";
+
             csvContent += preguntasUnicas.map(val => {
-                if (evaluacion.titulosF.includes(val)) {
-                    return evaluacion.puntosF[evaluacion.titulosF.indexOf(val)].toString();
-                }
-                else if (evaluacion.titulosC.includes(val)) {
-                    return evaluacion.puntosC[evaluacion.titulosC.indexOf(val)].toString();
-                }
-                else if (evaluacion.titulosP.includes(val)) {
-                    return evaluacion.puntosP[evaluacion.titulosP.indexOf(val)].toString();
-                }
-                else return ""
+                console.log(val);
+                console.log(cartelEvaluado.puntajesContenido);
+                if (cartelEvaluado.puntajesContenido.map(v => Object.keys(v)[0]).includes(val))
+                    return Object.values(cartelEvaluado.puntajesContenido.find(v => Object.keys(v)[0] == val))[0];
+                else if (cartelEvaluado.puntajesForma.map(v => Object.keys(v)[0]).includes(val))
+                    return Object.values(cartelEvaluado.puntajesForma.find(v => Object.keys(v)[0] == val))[0];
+                else if (cartelEvaluado.puntajesPertinencia.map(v => Object.keys(v)[0]).includes(val))
+                    return Object.values(cartelEvaluado.puntajesPertinencia.find(v => Object.keys(v)[0] == val))[0];
+                else return "";
             }).join("|");
-            let ingles = puntosInglesCarteles.find(elem => elem.cartel == evaluacion.clave).puntosIngles;
+            let ingles = cartelEvaluado.puntajesIngles.every(v => Object.values(v)[0] == 1) ? "5" : "0";
             csvContent += "|" + ingles;
-            csvContent += "|" + (evaluacion.totalPuntosC).toString();
-            csvContent += "|" + (evaluacion.totalPuntosF).toString();
-            csvContent += "|" + (evaluacion.totalPuntosP).toString();
-            csvContent += "|" + (evaluacion.totalPuntosC + evaluacion.totalPuntosF + evaluacion.totalPuntosP + ingles).toString();
+            csvContent += "|" + (cartelEvaluado.totalPuntajeContenido).toString();
+            csvContent += "|" + (cartelEvaluado.totalPuntajeForma).toString();
+            csvContent += "|" + (cartelEvaluado.totalPuntajePertinencia).toString();
+            csvContent += "|" + (cartelEvaluado.totalPuntajeContenido + cartelEvaluado.totalPuntajeForma + cartelEvaluado.totalPuntajePertinencia).toString();
             csvContent += "\r\n";
-            i++;
         }
-        //loaderAnim.style.display = "none";
+        setShowAnimation(false);
         var universalBOM = "\uFEFF";
         var link = document.createElement("a");
         link.setAttribute('href', 'data:text/csv; charset=utf-8,' + encodeURIComponent(universalBOM + csvContent));
@@ -163,15 +161,51 @@ const Evaluaciones = () => {
         link.click();
     }
 
+    const eliminarTodo = async () => {
+        alertify.confirm("Anahuac Mayab", "¿Estas seguro de eliminar este cartel?", async () => {
+            setShowAnimation(true);
+            for await (let cartel of evaluaciones) {
+                await deleteItem("cartel", cartel.clave);
+            }
+            setEvaluaciones([]);
+            setShowAnimation(false);
+            alertify.success("Carteles eliminados");
+        }, () => { alertify.error('Cancel'); });
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
             <TopBar titulo="Evaluaciones"></TopBar>
             <div className="workSpace">
                 <button className='btnExportar' onClick={() => exportarInfo()}>Exportar evaluaciones</button>
+                <button className='btnEliminarTodo' onClick={() => eliminarTodo()}>Eliminar todo</button>
+                {showAnimation &&
+                    <div id="loaderAnim" >
+                        <div className="sk-chase">
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                        </div>
+                    </div>}
+                <br />
+                <label htmlFor="searchTerm" style={{ width: 'fit-content' }}>Buscar:</label>
+                <input type="text" name="searchTerm" id="searchTerm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 <DataTable
+                    pagination="true"
                     columns={columns}
-                    data={evaluaciones}
+                    data={evaluaciones.filter((item) => {
+                        if (searchTerm === "") {
+                            return item;
+                        } else if (
+                            item.clave.toLowerCase().includes(searchTerm.toLowerCase())
+                        ) {
+                            return item;
+                        }
+                    })}
                 />
             </div>
         </>

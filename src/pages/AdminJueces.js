@@ -15,6 +15,8 @@ const AdminJueces = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedFile, setSelectedFile] = useState("");
     const [showFormEdit, setShowFormEdit] = useState(false);
+    const [showAnimation, setShowAnimation] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const estructura = useRef([
         { nombre: "Nombre", tipo: "text" },
@@ -53,14 +55,17 @@ const AdminJueces = () => {
         {
             name: 'Id',
             selector: row => row.Id,
+            filterable: true,
         },
         {
             name: 'Nombre',
             selector: row => row.nombre,
+            filterable: true,
         },
         {
             name: 'Apellidos',
-            selector: row => row.apellidos
+            selector: row => row.apellidos,
+            filterable: true,
         },
         {
             cell: row => (
@@ -155,6 +160,7 @@ const AdminJueces = () => {
                 })
                 juecesToSave.push(newObj);
             })
+            setShowAnimation(true);
             let juecesToAdd = [];
             let counter = 0;
             for await (let juez of juecesToSave) {
@@ -182,6 +188,7 @@ const AdminJueces = () => {
                 }
             }
             setJueces([...jueces, ...juecesToAdd]);
+            setShowAnimation(false);
             alertify.alert('Anahuac Mayab', 'Preguntas agregadas!', () => { alertify.success('Ok'); });
         } catch (error) {
             console.log(error)
@@ -200,6 +207,18 @@ const AdminJueces = () => {
         reader.readAsText(file);
     }
 
+    const eliminarTodo = async () => {
+        alertify.confirm("Anahuac Mayab", "¿Estas seguro de eliminar este juez?", async () => {
+            setShowAnimation(true);
+            for await (let juez of jueces) {
+                await deleteItem("juez", juez.Id);
+            }
+            setJueces([]);
+            setShowAnimation(false);
+            alertify.success("Carteles eliminados");
+        }, () => { alertify.error('Cancel'); });
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
@@ -208,12 +227,36 @@ const AdminJueces = () => {
                 {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir juez"}</button>}
                 <input type="file" name="File" id="File" accept=".csv" value={selectedFile} onChange={(e) => handleFileSelect(e)}></input>
                 <label htmlFor="File">Importar jueces</label>
+                <button className='btnEliminarTodo' onClick={() => eliminarTodo()}>Eliminar todo</button>
+                {showAnimation &&
+                    <div id="loaderAnim" >
+                        <div className="sk-chase">
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                        </div>
+                    </div>}
                 {showForm && <Form txtBtn="Guardar Juez" estructura={estructura.current} guardarNuevoFn={createJuez} inputs={inputs} setInputs={setInputs}></Form>}
                 {showFormEdit && <button className="btnAdd" onClick={() => setShowFormEdit(false)}>Cerrar</button>}
                 {showFormEdit && <FormEdit txtBtn="Editar Juez" estructura={estructura.current} editarCartelFn={editJuez} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}
+                <br />
+                <label htmlFor="searchTerm" style={{width: 'fit-content'}}>Buscar:</label>
+                <input type="text" name="searchTerm" id="searchTerm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
                 <DataTable
+                    pagination="true"
                     columns={columns}
-                    data={jueces}
+                    data={jueces.filter((item) => {
+                        if (searchTerm === "") {
+                            return item;
+                        } else if (
+                            item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+                        ) {
+                            return item;
+                        }
+                    })}
                 />
             </div>
         </>

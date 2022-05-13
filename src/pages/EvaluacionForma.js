@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const EvaluacionForma = (props) => {
     let navigate = useNavigate();
     const [claveCartel, setClaveCartel] = useState(useParams().clave);
-    const [tipoCartel, setTipoCartel] = useState(useParams().tipo);
+    const [tipoCartel, setTipoCartel] = useState(useParams().tipo.replace('-', '/'));
     const [preguntas, setPreguntas] = useState([]);
     const [preguntasIngles, setPreguntasIngles] = useState([]);
     const [respuestas, setRespuestas] = useState([]);
@@ -71,7 +71,7 @@ const EvaluacionForma = (props) => {
             console.log(puntajesIngles);
             alertify.confirm('Concurso de carteles', '¿Esta seguro que desea continuar?',
                 function () {
-                    navigate("/EvaluacionContenido/" + claveCartel + "/" + tipoCartel);
+                    navigate("/EvaluacionContenido/" + claveCartel + "/" + tipoCartel.replace('/', '-'));
                     alertify.success('Ok')
                 }
                 , function () {

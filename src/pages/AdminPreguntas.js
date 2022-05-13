@@ -15,6 +15,8 @@ const AdminPreguntas = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedFile, setSelectedFile] = useState("");
     const [showFormEdit, setShowFormEdit] = useState(false);
+    const [showAnimation, setShowAnimation] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const estructura = useRef([
         { nombre: "Titulo", tipo: "text" },
@@ -171,6 +173,7 @@ const AdminPreguntas = () => {
                 preguntasToSave.push(newObj);
             })
             let preguntasToAdd = [];
+            setShowAnimation(true);
             let counter = 0;
             for await (let pregunta of preguntasToSave) {
                 let newId = await getOrderByLimit("pregunta", "Id", "desc", 1);
@@ -196,6 +199,7 @@ const AdminPreguntas = () => {
                 }
             }
             setPreguntas([...preguntas, ...preguntasToAdd]);
+            setShowAnimation(false);
             alertify.alert('Anahuac Mayab', 'Preguntas agregadas!', () => { alertify.success('Ok'); });
         } catch (error) {
             console.log(error)
@@ -214,6 +218,18 @@ const AdminPreguntas = () => {
         reader.readAsText(file);
     }
 
+    const eliminarTodo = async () => {
+        alertify.confirm("Anahuac Mayab", "¿Estas seguro de eliminar esta pregunta?", async () => {
+            setShowAnimation(true);
+            for await (let pregunta of preguntas) {
+                await deleteItem("pregunta", pregunta.Id);
+            }
+            setPreguntas([]);
+            setShowAnimation(false);
+            alertify.success("Carteles eliminados");
+        }, () => { alertify.error('Cancel'); });
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
@@ -222,12 +238,36 @@ const AdminPreguntas = () => {
                 {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir pregunta"}</button>}
                 <input type="file" name="File" id="File" accept=".csv" value={selectedFile} onChange={(e) => handleFileSelect(e)}></input>
                 <label htmlFor="File">Importar preguntas</label>
+                <button className='btnEliminarTodo' onClick={() => eliminarTodo()}>Eliminar todo</button>
+                {showAnimation &&
+                    <div id="loaderAnim" >
+                        <div className="sk-chase">
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                            <div className="sk-chase-dot"></div>
+                        </div>
+                    </div>}
                 {showForm && <Form txtBtn="Guardar Pregunta" estructura={estructura.current} guardarNuevoFn={createPregunta} inputs={inputs} setInputs={setInputs}></Form>}
                 {showFormEdit && <button className="btnAdd" onClick={() => setShowFormEdit(false)}>Cerrar</button>}
                 {showFormEdit && <FormEdit txtBtn="Editar Pregunta" estructura={estructura.current} editarCartelFn={editPregunta} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}
+                <br />
+                <label htmlFor="searchTerm" style={{ width: 'fit-content' }}>Buscar:</label>
+                <input type="text" name="searchTerm" id="searchTerm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 <DataTable
+                    pagination="true"
                     columns={columns}
-                    data={preguntas}
+                    data={preguntas.filter((item) => {
+                        if (searchTerm === "") {
+                            return item;
+                        } else if (
+                            item.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+                        ) {
+                            return item;
+                        }
+                    })}
                 />
             </div>
         </>

@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const EvaluacionContenido = (props) => {
     let navigate = useNavigate();
     const [claveCartel, setClaveCartel] = useState(useParams().clave);
-    const [tipoCartel, setTipoCartel] = useState(useParams().tipo);
+    const [tipoCartel, setTipoCartel] = useState(useParams().tipo.replace('-', '/'));
     const [preguntas, setPreguntas] = useState([]);
     const [respuestas, setRespuestas] = useState([]);
     const [puntajes, setPuntajes] = useState([]);
@@ -49,7 +49,7 @@ const EvaluacionContenido = (props) => {
         } else {
             alertify.confirm('Concurso de carteles', '¿Esta seguro que desea continuar?',
                 function () {
-                    navigate("/EvaluacionPertinencia/" + claveCartel + "/" + tipoCartel);
+                    navigate("/EvaluacionPertinencia/" + claveCartel + "/" + tipoCartel.replace('/', '-'));
                     alertify.success('Ok')
                 }
                 , function () {

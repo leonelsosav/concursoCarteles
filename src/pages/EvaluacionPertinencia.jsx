@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const EvaluacionPertinencia = (props) => {
     let navigate = useNavigate();
     const [claveCartel, setClaveCartel] = useState(useParams().clave);
-    const [tipoCartel, setTipoCartel] = useState(useParams().tipo);
+    const [tipoCartel, setTipoCartel] = useState(useParams().tipo.replace('-', '/'));
     const [preguntas, setPreguntas] = useState([]);
     const [respuestas, setRespuestas] = useState([]);
     const [puntajes, setPuntajes] = useState([]);
@@ -53,7 +53,7 @@ const EvaluacionPertinencia = (props) => {
                         evaluado: true
                     }
                     await updateItem("cartel", claveCartel, dataToUpdate);
-                    navigate("/ResumenEvaluacion/" + claveCartel + "/" + tipoCartel);
+                    navigate("/ResumenEvaluacion/" + claveCartel + "/" + tipoCartel.replace("/", "-"));
                     alertify.success('Ok')
                 }
                 , function () {

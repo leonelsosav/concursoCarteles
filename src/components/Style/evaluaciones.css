@@ -27,3 +27,14 @@
     background-color: #5361C9;
     border: none;
 }
+
+.btnEliminarTodo{
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 5px;
+    color: white;
+    background-color: red;
+    border: none;
+}
