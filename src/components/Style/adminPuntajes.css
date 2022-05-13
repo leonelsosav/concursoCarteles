@@ -6,3 +6,22 @@
     margin-left: 25px;
     display: inline-block;
 }
+
+#File{
+    width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+#File + label {
+    margin-left: 20px;
+    color: white;
+    background-color: #5361C9;
+    font-size: 1.2em;
+    border-radius: 5px;
+    width:max-content;
+    
+}

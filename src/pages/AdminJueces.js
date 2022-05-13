@@ -13,6 +13,7 @@ const AdminJueces = () => {
     const { getAll, createItem, updateItem, deleteItem, getOrderByLimit, getWhere } = DAO();
     const [jueces, setJueces] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [selectedFile, setSelectedFile] = useState("");
     const [showFormEdit, setShowFormEdit] = useState(false);
 
     const estructura = useRef([
@@ -141,12 +142,72 @@ const AdminJueces = () => {
         }
     }
 
+    const cargarCSV = async (fileHandler) => {
+        try {
+            let data = fileHandler.split(/\r?\n/);
+            let titulos = data.shift().split(",");
+            let juecesToSave = [];
+            data.forEach((line) => {
+                let linea = line.split(",");
+                let newObj = {}
+                linea.forEach((element, idx) => {
+                    newObj[titulos[idx]] = element
+                })
+                juecesToSave.push(newObj);
+            })
+            let juecesToAdd = [];
+            let counter = 0;
+            for await (let juez of juecesToSave) {
+                let newId = await getOrderByLimit("juez", "Id", "desc", 2);
+                newId = newId[1];
+                let dataToAdd = {
+                    Id: Number(newId.Id) + 1,
+                    nombre: juez.Nombre,
+                    apellidos: juez.Apellidos,
+                    isLoggedIn: false,
+                    rol: "Juez",
+                    password: "ConcursoMayab",
+                    user: juez.Apellidos.trim().toUpperCase() + "_" + juez.Nombre.trim().toUpperCase(),
+                }
+                let res = await createItem("juez", dataToAdd, dataToAdd.Id.toString());
+                if (!res.error) {
+                    dataToAdd = {
+                        id: jueces.length + counter,
+                        Id: dataToAdd.Id,
+                        nombre: juez.Nombre,
+                        apellidos: juez.Apellidos
+                    }
+                    counter += 1;
+                    juecesToAdd.push(dataToAdd);
+                }
+            }
+            setJueces([...jueces, ...juecesToAdd]);
+            alertify.alert('Anahuac Mayab', 'Preguntas agregadas!', () => { alertify.success('Ok'); });
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target.result;
+            console.log(text);
+            cargarCSV(text);
+        }
+        reader.readAsText(file);
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
             <TopBar titulo="Administración de jueces"></TopBar>
             <div className="workSpace">
                 {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir juez"}</button>}
+                <input type="file" name="File" id="File" accept=".csv" value={selectedFile} onChange={(e) => handleFileSelect(e)}></input>
+                <label htmlFor="File">Importar jueces</label>
                 {showForm && <Form txtBtn="Guardar Juez" estructura={estructura.current} guardarNuevoFn={createJuez} inputs={inputs} setInputs={setInputs}></Form>}
                 {showFormEdit && <button className="btnAdd" onClick={() => setShowFormEdit(false)}>Cerrar</button>}
                 {showFormEdit && <FormEdit txtBtn="Editar Juez" estructura={estructura.current} editarCartelFn={editJuez} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}

@@ -20,7 +20,7 @@ const Evaluaciones = () => {
                         titulo: cartel.titulo,
                         autor: cartel.autor,
                         juez: cartel.juez,
-                        puntos: cartel.totalPuntajeForma+cartel.totalPuntajeContenido+cartel.totalPuntajePertinencia,
+                        puntos: cartel.totalPuntajeForma + cartel.totalPuntajeContenido + cartel.totalPuntajePertinencia,
                         ptsForma: cartel.totalPuntajeForma,
                         ptsContenido: cartel.totalPuntajeContenido,
                         ptsPertinencia: cartel.totalPuntajePertinencia,
@@ -107,11 +107,68 @@ const Evaluaciones = () => {
         },
     ];
 
+    const exportarInfo = () => {
+        //let loaderAnim = document.getElementById("loaderAnim");
+        //let porcentajeLoader = document.getElementById("porcentajeLoader");
+        //let i = 1;
+        //loaderAnim.style.display = "block";
+
+        const titulos = ["Nombre del Evaluador", "Clave QR", "Nombre del Cartel", "Seleccionar Rubrica"];
+
+        let csvContent = "";
+
+        csvContent += titulos.join("|") + "|";
+        let preguntas = await getAll("pregunta");
+        let preguntasUnicas = Array.from(new Set(preguntas.map(val => val.titulo)));
+        preguntasUnicas = preguntasUnicas.filter(val => val !== "GRAMATICA" && val !== "CARTEL EN INGLÉS")
+        csvContent += preguntasUnicas.join("|") + "|" + "Puntos en ingles" + "|" + "Puntos de Contenido" + "|" + "Puntos de Forma" + "|" + "Puntos de Pertinencia" + "|" + "TOTAL";
+        csvContent += "\r\n";
+
+        let evaluacionesFinalizadas = await getWhere("cartel", "evaluado", "==", true);
+        for await (let evaluacion of evaluacionesFinalizadas) {
+            //porcentajeLoader.innerText = (i * 100 / evaluacionesFinalizadas.length).toFixed(2) + "%";
+            let cartel = await driver.read("cartel", evaluacion.clave);
+            let juez = await driver.read("juez", cartel.juez);
+            csvContent += juez.nombre + " " + juez.apellidos + "|";
+            csvContent += cartel.id + "|";
+            csvContent += cartel.titulo + "|";
+            csvContent += cartel.tipo + "|";
+            csvContent += preguntasUnicas.map(val => {
+                if (evaluacion.titulosF.includes(val)) {
+                    return evaluacion.puntosF[evaluacion.titulosF.indexOf(val)].toString();
+                }
+                else if (evaluacion.titulosC.includes(val)) {
+                    return evaluacion.puntosC[evaluacion.titulosC.indexOf(val)].toString();
+                }
+                else if (evaluacion.titulosP.includes(val)) {
+                    return evaluacion.puntosP[evaluacion.titulosP.indexOf(val)].toString();
+                }
+                else return ""
+            }).join("|");
+            let ingles = puntosInglesCarteles.find(elem => elem.cartel == evaluacion.clave).puntosIngles;
+            csvContent += "|" + ingles;
+            csvContent += "|" + (evaluacion.totalPuntosC).toString();
+            csvContent += "|" + (evaluacion.totalPuntosF).toString();
+            csvContent += "|" + (evaluacion.totalPuntosP).toString();
+            csvContent += "|" + (evaluacion.totalPuntosC + evaluacion.totalPuntosF + evaluacion.totalPuntosP + ingles).toString();
+            csvContent += "\r\n";
+            i++;
+        }
+        //loaderAnim.style.display = "none";
+        var universalBOM = "\uFEFF";
+        var link = document.createElement("a");
+        link.setAttribute('href', 'data:text/csv; charset=utf-8,' + encodeURIComponent(universalBOM + csvContent));
+        link.setAttribute("download", "evaluaciones.csv");
+        document.body.appendChild(link);
+        link.click();
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
             <TopBar titulo="Evaluaciones"></TopBar>
             <div className="workSpace">
+                <button className='btnExportar' onClick={() => exportarInfo()}>Exportar evaluaciones</button>
                 <DataTable
                     columns={columns}
                     data={evaluaciones}

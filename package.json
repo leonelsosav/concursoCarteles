@@ -9,6 +9,7 @@
     "alertify": "^0.3.0",
     "alertifyjs": "^1.13.1",
     "chart.js": "^3.7.1",
+    "d3": "^7.4.4",
     "firebase": "^9.6.9",
     "react": "^17.0.2",
     "react-chartjs-2": "^4.1.0",

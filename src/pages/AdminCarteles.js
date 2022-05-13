@@ -6,6 +6,7 @@ import DAO from '../components/Logic/DAO'
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import Form from '../components/UI/Form'
 import FormEdit from '../components/UI/FormEdit';
+import '../components/Style/loader.css';
 import * as alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.css';
 
@@ -13,6 +14,7 @@ const AdminCarteles = () => {
     const { getAll, createItem, updateItem, deleteItem } = DAO();
     const [carteles, setCarteles] = useState([]);
     const [jueces, setJueces] = useState([]);
+    const [selectedFile, setSelectedFile] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [showFormEdit, setShowFormEdit] = useState(false);
 
@@ -54,9 +56,9 @@ const AdminCarteles = () => {
 
     useEffect(() => {
         if (jueces.length > 0) {
-            setCarteles(carteles.map(cartel => ({...cartel, nombreJuez: jueces.find(juez => juez.Id == cartel.juez)?.nombre})));
+            setCarteles(carteles.map(cartel => ({ ...cartel, nombreJuez: jueces.find(juez => juez.Id == cartel.juez)?.nombre })));
         }
-    },[jueces]);
+    }, [jueces]);
 
     const columns = [
         {
@@ -197,12 +199,87 @@ const AdminCarteles = () => {
         }
     }
 
+    const cargarCSV = async (fileHandler) => {
+        try {
+            let data = fileHandler.split(/\r?\n/);
+            let titulos = data.shift().split(",");
+            let cartelesToSave = [];
+            data.forEach((line) => {
+                let linea = line.split(",");
+                let newObj = {}
+                linea.forEach((element, idx) => {
+                    newObj[titulos[idx]] = element
+                })
+                cartelesToSave.push(newObj);
+            })
+            let cartelesToAdd = [];
+            let counter = 0;
+            for await (let cartel of cartelesToSave) {
+                let dataToAdd = {
+                    //id: carteles.length,
+                    clave: cartel.Clave.toString(),
+                    titulo: cartel.Titulo,
+                    autor: cartel.Autor,
+                    juez: cartel.Juez,
+                    //nombreJuez: cartel["Nombre del juez"],
+                    tipo: cartel.Tipo,
+                    link: cartel.Link
+                }
+                let res = await createItem("cartel", dataToAdd, dataToAdd.clave);
+                if (!res.error) {
+                    dataToAdd = {
+                        id: carteles.length + counter,
+                        clave: cartel.Clave.toString(),
+                        titulo: cartel.Titulo,
+                        autor: cartel.Autor,
+                        juez: cartel.Juez,
+                        nombreJuez: jueces.find(juez => juez.Id == dataToAdd.juez)?.nombre,
+                        tipo: cartel.Tipo,
+                        link: cartel.Link
+                    }
+                    counter += 1;
+                    cartelesToAdd.push(dataToAdd);
+                }
+            }
+            setCarteles([...carteles, ...cartelesToAdd]);
+            alertify.alert('Anahuac Mayab', '¡Carteles agregados!', () => { alertify.success('Ok'); });
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target.result;
+            console.log(text);
+            cargarCSV(text);
+        }
+        reader.readAsText(file);
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
             <TopBar titulo="Administración de carteles"></TopBar>
             <div className="workSpace">
                 {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir cartel"}</button>}
+                <input type="file" name="File" id="File" accept=".csv" value={selectedFile} onChange={(e) => handleFileSelect(e)}></input>
+                <label htmlFor="File">Importar carteles</label>
+                <div id="loaderAnim" >
+                    <div className="sk-chase">
+                        <div className="sk-chase-dot"></div>
+                        <div className="sk-chase-dot"></div>
+                        <div className="sk-chase-dot"></div>
+                        <div className="sk-chase-dot"></div>
+                        <div className="sk-chase-dot"></div>
+                        <div className="sk-chase-dot"></div>
+                    </div>
+                    <p id="porcentajeLoader">0%</p>
+                </div>
                 {showForm && <Form txtBtn="Guardar Cartel" estructura={estructura.current} guardarNuevoFn={createCartel} inputs={inputs} setInputs={setInputs}></Form>}
                 {showFormEdit && <button className="btnAdd" onClick={() => setShowFormEdit(false)}>Cerrar</button>}
                 {showFormEdit && <FormEdit txtBtn="Editar Cartel" estructura={estructura.current} editarCartelFn={editCartel} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}

@@ -13,6 +13,7 @@ const AdminPreguntas = () => {
     const { getAll, createItem, updateItem, deleteItem, getOrderByLimit } = DAO();
     const [preguntas, setPreguntas] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [selectedFile, setSelectedFile] = useState("");
     const [showFormEdit, setShowFormEdit] = useState(false);
 
     const estructura = useRef([
@@ -89,7 +90,7 @@ const AdminPreguntas = () => {
                 let dataa = preguntas.filter((pregunta, idx) => idx !== id).map((pregunta, idx) => {
                     return {
                         id: idx,
-                        Id: pregunta.clave,
+                        Id: pregunta.Id,
                         titulo: pregunta.titulo,
                         tipo: pregunta.tipo,
                         rubrica: pregunta.rubrica,
@@ -156,12 +157,71 @@ const AdminPreguntas = () => {
         }
     }
 
+    const cargarCSV = async (fileHandler) => {
+        try {
+            let data = fileHandler.split(/\r?\n/);
+            let titulos = data.shift().split(",");
+            let preguntasToSave = [];
+            data.forEach((line) => {
+                let linea = line.split(",");
+                let newObj = {}
+                linea.forEach((element, idx) => {
+                    newObj[titulos[idx]] = element
+                })
+                preguntasToSave.push(newObj);
+            })
+            let preguntasToAdd = [];
+            let counter = 0;
+            for await (let pregunta of preguntasToSave) {
+                let newId = await getOrderByLimit("pregunta", "Id", "desc", 1);
+                let dataToAdd = {
+                    Id: Number(newId.Id) + 1,
+                    titulo: pregunta.Titulo,
+                    tipo: pregunta.Tipo,
+                    rubrica: pregunta.Rubrica,
+                    criterio: pregunta.Criterio
+                }
+                let res = await createItem("pregunta", dataToAdd, dataToAdd.Id.toString());
+                if (!res.error) {
+                    dataToAdd = {
+                        id: preguntas.length + counter,
+                        Id: dataToAdd.Id,
+                        titulo: pregunta.Titulo,
+                        tipo: pregunta.Tipo,
+                        rubrica: pregunta.Rubrica,
+                        criterio: pregunta.Criterio
+                    }
+                    counter += 1;
+                    preguntasToAdd.push(dataToAdd);
+                }
+            }
+            setPreguntas([...preguntas, ...preguntasToAdd]);
+            alertify.alert('Anahuac Mayab', 'Preguntas agregadas!', () => { alertify.success('Ok'); });
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target.result;
+            console.log(text);
+            cargarCSV(text);
+        }
+        reader.readAsText(file);
+    }
+
     return (
         <>
             <Sidebar></Sidebar>
             <TopBar titulo="Administración de preguntas"></TopBar>
             <div className="workSpace">
                 {!showFormEdit && <button className="btnAdd" onClick={() => !showForm ? setShowForm(true) : setShowForm(false)}>{showForm ? "Cerrar" : "Añadir pregunta"}</button>}
+                <input type="file" name="File" id="File" accept=".csv" value={selectedFile} onChange={(e) => handleFileSelect(e)}></input>
+                <label htmlFor="File">Importar preguntas</label>
                 {showForm && <Form txtBtn="Guardar Pregunta" estructura={estructura.current} guardarNuevoFn={createPregunta} inputs={inputs} setInputs={setInputs}></Form>}
                 {showFormEdit && <button className="btnAdd" onClick={() => setShowFormEdit(false)}>Cerrar</button>}
                 {showFormEdit && <FormEdit txtBtn="Editar Pregunta" estructura={estructura.current} editarCartelFn={editPregunta} inputsEdit={inputsEdit} setInputsEdit={setInputsEdit}></FormEdit>}
